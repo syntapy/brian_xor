@@ -114,8 +114,8 @@ print "u0 = ", u0
 Sa[:,:]=True
 Sb[:,:]=True
 
-Sa.w[:]='8.04*(1.5+0.2*rand())*br.mV'
-Sb.w[:]='9.0*(1.5+0.2*rand())*br.mV'
+Sa.w[:]='8.04*(1.0+0.2*rand())*br.mV'
+Sb.w[:]='9.0*(0.3+0.2*rand())*br.mV'
 
 Sa.delay='(4)*ms'
 Sb.delay='(4)*ms'
@@ -142,20 +142,47 @@ T = 30
 N_o = 1
 N_h = 1
 
-snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
-    #print "\tDone! for number = ", number
+print "======================================================================"
+print "\t\t\tSetting number of spikes"
+print "======================================================================"
+
+for i in range(10):
+    for number in range(3, -1, -1):
+        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+        print "\tDone! for number = ", number
     #winpdb.set_trace()
 
-#for number in range(4):
-#    snn.Run(T, v0, u0, bench, number, \
-#            input_neurons, hidden_neurons, output_neurons, \
-#            Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+print "======================================================================"
+print "\t\t\tTraining with ReSuMe"
+print "======================================================================"
+
+for number in range(4):
+    print "\tTRAINING: number = ", number
+    if number == 3:
+        pudb.set_trace()
+    train.ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+
+print "======================================================================"
+print "\t\t\tTesting"
+print "======================================================================"
+
+#pudb.set_trace()
+for number in range(4):
+    snn.Run(T, v0, u0, bench, number, \
+            input_neurons, hidden_neurons, output_neurons, \
+            Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+
+    if number < 2:
+        desired = 0.010
+    else:
+        desired = 0.016
+
+    print "Number, Desired, Actual = ", number, ", ", desired, ", ", S_out.spiketimes
 #
 #    snn.Plot(Mv, number)
 #
 #br.show()
 #for number in range(4):
-#    train.ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 
 #print "spike times: ", S_out.spikes
 

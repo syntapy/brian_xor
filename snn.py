@@ -1,6 +1,6 @@
 import numpy as np
 import brian as br
-#import pudb
+import pudb
 
 def ReadImg(number=1, letter=None, bench='LI', levels=None):
 
@@ -132,21 +132,48 @@ def ModifyWeights(S, dv):
         weet = weet*br.volt + dv*br.mV
         S.w[i] = weet
 
+def CollectSpikes(N_hidden, S_hidden, S_out):
+    spikes_hidden = []
+    for i in range(N_hidden):
+        spikes_hidden.append([])
+
+    spikes_out = S_out.spikes
+
+    return spikes_hidden, spikes_out
+
+def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+    #Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+    N_out = len(output_neurons)
+    N_hidden = len(hidden_neurons)
+    spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
+
+    for i in range(N_out):
+        if len(S_out.spiketimes[i]) != N_o:
+            return False
+
+    #pudb.set_trace()
+    for i in range(N_hidden):
+        if len(S_hidden.spiketimes[i]) != N_h:
+            return False
+
+    return True
+
 def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
     dv = 0.2
     i = 0
-    while True: 
+    done = False
 
-        #br.run(T*br.msecond,report='text')
-        #pudb.set_trace()
+    while done == False: 
+
         Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-        spikes_hidden = []
-        for i in range(len(hidden_neurons)):
-            spikes_hidden.append([])
+        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
 
-        spikes_out = S_out.spikes
+        N_hidden = len(hidden_neurons)
+        spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
         N_out = len(spikes_out)
+
+        print "\t\t\t\tSETTING NO. SPIKES"
 
         hidden_are_set = True
         for i in range(len(hidden_neurons)):

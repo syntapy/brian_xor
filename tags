@@ -4,14 +4,12 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-A	encode.py	/^    A = np.pad(cv2.imread('mnist\/images\/' + str(h) + '.tiff', flags=0), 2, mode='constant')$/;"	v
 B	xor.py	/^B = b*br.ms$/;"	v
+CheckNumSpikes	snn.py	/^def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
+CollectSpikes	snn.py	/^def CollectSpikes(N_hidden, S_hidden, S_out):$/;"	f
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
-G	encode.py	/^        G = cv2.pyrDown(G)$/;"	v
-G	encode.py	/^    G = A.copy()$/;"	v
-GE	encode.py	/^        GE = cv2.pyrUp(gpA[i])$/;"	v
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
-L	encode.py	/^        L = cv2.subtract(gpA[i-1],GE)$/;"	v
+L	train.py	/^def L(t):$/;"	f
 LowPass	snn.py	/^def LowPass(S):$/;"	f
 M	xor.py	/^M =br.StateMonitor(output_neurons,'ge',record=0)$/;"	v
 ModifyWeights	snn.py	/^def ModifyWeights(S, dv):$/;"	f
@@ -26,6 +24,7 @@ N_in	xor.py	/^N_in = 2$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
+P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
 PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
 Plot	snn.py	/^def Plot(Mv, number):$/;"	f
@@ -56,10 +55,11 @@ dWa	train.py	/^def dWa(Sa, v_diffs, i_diffs):$/;"	f
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
 data_dir	xor.py	/^    data_dir = 'on_pyr\/'$/;"	v
+desired	xor.py	/^        desired = 0.010$/;"	v
+desired	xor.py	/^        desired = 0.016$/;"	v
 dir	xor.py	/^    dir = 'li-data\/'$/;"	v
 dir	xor.py	/^    dir = 'minst\/'$/;"	v
 g	xor.py	/^g = 2$/;"	v
-gpA	encode.py	/^    gpA = [G]$/;"	v
 hidden_neurons	xor.py	/^hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, reset=reset)$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
@@ -68,7 +68,6 @@ input_neurons	xor.py	/^input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)$/;
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^    levels = levels$/;"	v
 levels	xor.py	/^levels=4$/;"	v
-lpA	encode.py	/^    lpA = [gpA[-1]]$/;"	v
 n	xor.py	/^    n = 3   # Dimension of single image (no pyramid)$/;"	v
 n	xor.py	/^    n = 32  # Dimension of largest image in pyramid$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
