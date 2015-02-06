@@ -60,6 +60,7 @@ def ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_ne
             snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
+            print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
             done = snn.CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
 
             if done == False:

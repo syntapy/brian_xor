@@ -173,7 +173,8 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
         spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
         N_out = len(spikes_out)
 
-        print "\t\t\t\tSETTING NO. SPIKES"
+        print "SETTING NO. SPIKES "
+        print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
 
         hidden_are_set = True
         for i in range(len(hidden_neurons)):

@@ -90,8 +90,8 @@ g = 2
 
 spikes = []
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
-hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, reset=reset)
-output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, reset=reset)
+hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)
+output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)
 
 #objects.append(hidden_neurons)
 Sa = br.Synapses(input_neurons, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
@@ -114,8 +114,8 @@ print "u0 = ", u0
 Sa[:,:]=True
 Sb[:,:]=True
 
-Sa.w[:]='8.04*(1.0+0.2*rand())*br.mV'
-Sb.w[:]='9.0*(0.3+0.2*rand())*br.mV'
+Sa.w[:]='8.04*(0.7+0.2*rand())*br.mV'
+Sb.w[:]='9.0*(0.1+0.2*rand())*br.mV'
 
 Sa.delay='(4)*ms'
 Sb.delay='(4)*ms'
@@ -158,8 +158,8 @@ print "======================================================================"
 
 for number in range(4):
     print "\tTRAINING: number = ", number
-    if number == 3:
-        pudb.set_trace()
+    #if number == 3:
+    #    pudb.set_trace()
     train.ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 
 print "======================================================================"
