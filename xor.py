@@ -7,6 +7,18 @@ import pudb
 import snn 
 import train
 
+"""
+    This script simulates a basic set of feedforward spiking neurons (Izhikevich model).
+
+    So far the ReSuMe algorithm has been implemented (it seems).
+
+    TO DO:
+        Clean it up so that it is easier to tweak parameters
+        Test the firing time range of a neuron
+        Tweak parameters to make it solve the XOR problem efficiently
+        Work this into a script which takesarguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
+"""
+
 #objects = []
 N = 1
 
@@ -25,9 +37,10 @@ N_in = 2
 N_hidden = 4
 N_out = 1
 
+Pc = 0.05
+
 
 '''     0 - Calculates number of filters    '''
-
 if bench == 'mnist':
     levels = levels
     n = 32  # Dimension of largest image in pyramid
@@ -54,6 +67,11 @@ elif bench == 'xor':
     N = 1
     #dir = 'li-data/'
     #data_dir = 'noise/'
+
+if bench == 'xor':
+    dA = 10*br.ms
+    dB = 16*br.ms
+    in_out = {0:dB, 1:dA}
 
 
 simtime = 1 #duration of the simulation in s
@@ -86,7 +104,6 @@ img = np.empty(img_dims)
 
 count = 0
 g = 2
-
 
 spikes = []
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
@@ -160,7 +177,7 @@ for number in range(4):
     print "\tTRAINING: number = ", number
     #if number == 3:
     #    pudb.set_trace()
-    train.ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    train.ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 
 print "======================================================================"
 print "\t\t\tTesting"

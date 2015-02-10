@@ -28,7 +28,7 @@ P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
 PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
 Plot	snn.py	/^def Plot(Mv, number):$/;"	f
-ReSuMe	train.py	/^def ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
+ReSuMe	train.py	/^def ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
 Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 S_hidden	xor.py	/^S_hidden = br.SpikeMonitor(hidden_neurons, record=True)$/;"	v
@@ -51,6 +51,8 @@ c	xor.py	/^c=-65$/;"	v
 count	xor.py	/^count = 0$/;"	v
 d	xor.py	/^d = d*br.mV\/br.ms$/;"	v
 d	xor.py	/^d=6$/;"	v
+dA	xor.py	/^    dA = 10*br.ms$/;"	v
+dB	xor.py	/^    dB = 16*br.ms$/;"	v
 dWa	train.py	/^def dWa(Sa, v_diffs, i_diffs):$/;"	f
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
@@ -60,10 +62,11 @@ desired	xor.py	/^        desired = 0.016$/;"	v
 dir	xor.py	/^    dir = 'li-data\/'$/;"	v
 dir	xor.py	/^    dir = 'minst\/'$/;"	v
 g	xor.py	/^g = 2$/;"	v
-hidden_neurons	xor.py	/^hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, reset=reset)$/;"	v
+hidden_neurons	xor.py	/^hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 img_dims	xor.py	/^    img_dims = (n, n)$/;"	v
+in_out	xor.py	/^    in_out = {0:dA, 1:dA, 2:dB, 3:dB}$/;"	v
 input_neurons	xor.py	/^input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^    levels = levels$/;"	v
@@ -72,7 +75,7 @@ n	xor.py	/^    n = 3   # Dimension of single image (no pyramid)$/;"	v
 n	xor.py	/^    n = 32  # Dimension of largest image in pyramid$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
 number	xor.py	/^number = 3$/;"	v
-output_neurons	xor.py	/^output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, reset=reset)$/;"	v
+output_neurons	xor.py	/^output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)$/;"	v
 simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
 spikes	xor.py	/^spikes = []$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v

@@ -219,6 +219,8 @@ def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons,
     output_neurons.I = 0
     br.run(T*br.msecond,report='text')
 
+    return label
+
 def Plot(Mv, number):
     #if number < 2:
     br.plot(211)

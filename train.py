@@ -15,7 +15,7 @@ def DesiredOut(label, bench):
     return return_val
 
 def WeightChange(s):
-    A = 1 * 10**-1
+    A = 10**1
     tau = 1.0*br.ms
     return A*ma.exp(-s / tau)
 
@@ -42,7 +42,7 @@ def P_Index(S_l, S_d):
     #else:
     #    return None
 
-def ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
 
     img, label = snn.ReadImg(number=number, bench=bench)
     N_hidden = len(hidden_neurons)
@@ -56,8 +56,8 @@ def ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_ne
     while trained == False:
         for i in range(N_hidden):
 
-            print "\t\ti = ", i
-            snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
+            #print "\t\ti = ", i
+            label = snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
             print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
@@ -71,20 +71,17 @@ def ReSuMe(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_ne
             #pudb.set_trace()
             S_l = S_out.spiketimes
             S_i = S_hidden.spiketimes
-            S_d = DesiredOut(label, bench)
-            S_d += 10 * br.ms
+            S_d = in_out[label]
 
             P = P_Index(S_l, S_d)
             print "\t\t\tP = ", P
-            if P < 0.005:
+            if P < Pc:
                 trained = True
                 break
 
             #pudb.set_trace()
-            #if len(S_hidden.spiketimes[i]) > 1:
-            #    
-            sd = max(0, S_d - S_i[i])
-            sl = max(0, S_l[0] - S_i[i])
+            sd = max(0, float(S_d) - S_i[i][0])
+            sl = max(0, S_l[0][0] - S_i[i][0])
             Wd = WeightChange(sd)
             Wl = -WeightChange(sl)
             Sb.w[i] = Sb.w[i] + Wd + Wl
