@@ -108,24 +108,37 @@ count = 0
 g = 2
 
 spikes = []
+N_hidden = [3, 3]
+hidden_neurons = []# * len(N_hidden)
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
-hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
+
+#pudb.set_trace()
+for i in range(len(N_hidden)):
+    hidden_neurons.append(br.NeuronGroup(N_hidden[i], model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset))
+
 output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
 
 #objects.append(hidden_neurons)
-Sa = br.Synapses(input_neurons, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
-Sb = br.Synapses(hidden_neurons, output_neurons, model='w:1', pre='ge+=w*(2)')
+Sa = br.Synapses(input_neurons, hidden_neurons[0], model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
+
+Sh = []
+for i in range(len(N_hidden) - 1):
+    Sh.append(br.Synapses(hidden_neurons[i], hidden_neurons[i+1], model='w:1', pre='ge+=w'))
+
+Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w*(2)')
 
 v0, u0 = -70*br.mV, -14*br.mV/br.msecond
 
-hidden_neurons.v = v0
-hidden_neurons.u = u0
-hidden_neurons.I = 0
+for i in range(len(hidden_neurons)):
+    hidden_neurons[i].v = v0
+    hidden_neurons[i].u = u0
+    hidden_neurons[i].I = 0
+    hidden_neurons[i].ge = 0
 
 output_neurons.v = v0
 output_neurons.u = u0
 output_neurons.I = 0
-
+output_neurons.ge = 0
 
 print "v0 = ", v0
 print "u0 = ", u0
@@ -138,14 +151,19 @@ Sb.w[:]='9.0*(0.1+0.2*rand())*br.mV'
 
 Sa.delay='(4)*ms'
 Sb.delay='(4)*ms'
-print "n.v0, n.u0 = ", hidden_neurons.v, ", ", hidden_neurons.u
+#print "n.v0, n.u0 = ", hidden_neurons.v, ", ", hidden_neurons.u
 
 M =br.StateMonitor(output_neurons,'ge',record=0)
 Mv=br.StateMonitor(output_neurons,'v',record=0)
 Mu=br.StateMonitor(output_neurons,'u',record=0)
 
 S_in = br.SpikeMonitor(input_neurons, record=True)
-S_hidden = br.SpikeMonitor(hidden_neurons, record=True)
+S_hidden = []
+
+#pudb.set_trace()
+for i in range(len(hidden_neurons)):
+    S_hidden.append(br.SpikeMonitor(hidden_neurons[i], record=True))
+
 S_out = br.SpikeMonitor(output_neurons, record=True)
 
 #objects.append(M)
@@ -167,9 +185,8 @@ print "======================================================================"
 
 for i in range(10):
     for number in range(3, -1, -1):
-        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
         print "\tDone! for number = ", number
-    #winpdb.set_trace()
 
 print "======================================================================"
 print "\t\t\tTraining with ReSuMe"

@@ -103,7 +103,6 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
                 print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
                 #pudb.set_trace()
                 snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
-
             #pudb.set_trace()
             S_l = S_out.spiketimes
             S_i = S_hidden.spiketimes
