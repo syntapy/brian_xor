@@ -25,10 +25,11 @@ N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
+Pc	xor.py	/^Pc = 0.05$/;"	v
 PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
 Plot	snn.py	/^def Plot(Mv, number):$/;"	f
-ReSuMe	train.py	/^def ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
+ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
 Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 S_hidden	xor.py	/^S_hidden = br.SpikeMonitor(hidden_neurons, record=True)$/;"	v
@@ -39,6 +40,7 @@ Sb	xor.py	/^Sb = br.Synapses(hidden_neurons, output_neurons, model='w:1', pre='g
 SetNumSpikes	snn.py	/^def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 T	xor.py	/^T = 30$/;"	v
+TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
 a	xor.py	/^a = a\/br.ms$/;"	v
 a	xor.py	/^a=0.02$/;"	v
@@ -59,6 +61,7 @@ data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
 data_dir	xor.py	/^    data_dir = 'on_pyr\/'$/;"	v
 desired	xor.py	/^        desired = 0.010$/;"	v
 desired	xor.py	/^        desired = 0.016$/;"	v
+desired_times	xor.py	/^    desired_times = {0:dB, 1:dA}$/;"	v
 dir	xor.py	/^    dir = 'li-data\/'$/;"	v
 dir	xor.py	/^    dir = 'minst\/'$/;"	v
 g	xor.py	/^g = 2$/;"	v
@@ -66,7 +69,6 @@ hidden_neurons	xor.py	/^hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidd
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 img_dims	xor.py	/^    img_dims = (n, n)$/;"	v
-in_out	xor.py	/^    in_out = {0:dA, 1:dA, 2:dB, 3:dB}$/;"	v
 input_neurons	xor.py	/^input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^    levels = levels$/;"	v

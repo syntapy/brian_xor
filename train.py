@@ -1,4 +1,5 @@
 import brian as br
+import numpy as np
 import math as ma
 import pudb
 import snn
@@ -15,8 +16,8 @@ def DesiredOut(label, bench):
     return return_val
 
 def WeightChange(s):
-    A = 10**1
-    tau = 1.0*br.ms
+    A = 10**-1
+    tau = 2.0*br.ms
     return A*ma.exp(-s / tau)
 
 def L(t):
@@ -29,20 +30,55 @@ def L(t):
 def P_Index(S_l, S_d):
     return_val = 0
 
-    #if len(S_l) == len(S_d):
-    #for i in range(len(S_l)):
-        #if len(S_l[i]) != len(S_d[i]):
-        #    return None
-        #if len(S_l[i]) != 0:
-        #    pudb.set_trace()
     return_val += abs(L(S_d) - L(S_l[0][0]*br.second))
 
-    #pudb.set_trace()
     return return_val
-    #else:
-    #    return None
 
-def ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+    n_hidden = len(hidden_neurons) 
+    old_weights = np.empty(n_hidden)
+
+    return_val = [-1, -1]
+
+    for i in range(n_hidden):
+        old_weights[i] = Sb.w[i]
+        Sb.w[i] = 0
+
+    j = 0
+    #Sb.w[0] = 0.01
+    while True:
+
+        snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
+                Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+        #pudb.set_trace()
+        spikes_out = S_out.spiketimes[0]
+        spikes_hidden = S_hidden.spiketimes[0]
+        n_outspikes = len(spikes_out)
+        print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
+
+        if n_outspikes == 1:
+            if return_val[0] == -1:
+                #pudb.set_trace()
+                return_val[0] = spikes_out[0] - spikes_hidden[0]
+            return_val[1] = spikes_out[0]
+        elif n_outspikes > 1:
+            #pudb.set_trace()
+            break
+
+        Sb.w[0] = Sb.w[0] + 0.001
+
+        #if j % 1 == 0:
+        #    snn.Plot(Mv, 0)
+            
+        #j += 1
+
+
+    for i in range(n_hidden):
+        Sb.w[i] = old_weights[i]
+
+    return return_val
+
+def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
 
     img, label = snn.ReadImg(number=number, bench=bench)
     N_hidden = len(hidden_neurons)
@@ -71,7 +107,7 @@ def ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neuron
             #pudb.set_trace()
             S_l = S_out.spiketimes
             S_i = S_hidden.spiketimes
-            S_d = in_out[label]
+            S_d = desired_times[label]
 
             P = P_Index(S_l, S_d)
             print "\t\t\tP = ", P

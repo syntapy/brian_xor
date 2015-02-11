@@ -197,12 +197,12 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
 
 def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
-    hidden_neurons.v = v0
-    hidden_neurons.u = u0
-    hidden_neurons.I = 0
-    output_neurons.v = v0
-    output_neurons.u = u0
-    output_neurons.I = 0
+    #hidden_neurons.v = v0
+    #hidden_neurons.u = u0
+    #hidden_neurons.I = 0
+    #output_neurons.v = v0
+    #output_neurons.u = u0
+    #output_neurons.I = 0
 
     br.forget(Sa, Sb)
     br.reinit(states=False)
@@ -217,6 +217,8 @@ def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons,
     output_neurons.u = u0
     hidden_neurons.I = 0
     output_neurons.I = 0
+    hidden_neurons.ge = 0
+    output_neurons.ge = 0
     br.run(T*br.msecond,report='text')
 
     return label

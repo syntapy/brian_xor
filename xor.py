@@ -13,10 +13,11 @@ import train
     So far the ReSuMe algorithm has been implemented (it seems).
 
     TO DO:
-        Clean it up so that it is easier to tweak parameters
-        Test the firing time range of a neuron
+        X Clean it up so that it is easier to tweak parameters
+        X Test the firing time range of a neuron
+        Add multiple layers
         Tweak parameters to make it solve the XOR problem efficiently
-        Work this into a script which takesarguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
+        Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
 """
 
 #objects = []
@@ -29,7 +30,7 @@ a=0.02
 b=0.2
 c=-65
 d=6
-tau=5
+tau=15
 bench='xor'
 levels=4
 
@@ -68,10 +69,10 @@ elif bench == 'xor':
     #dir = 'li-data/'
     #data_dir = 'noise/'
 
-if bench == 'xor':
-    dA = 10*br.ms
-    dB = 16*br.ms
-    in_out = {0:dB, 1:dA}
+#if bench == 'xor':
+#    dA = 10*br.ms
+#    dB = 16*br.ms
+#    desired_times = {0:dB, 1:dA}
 
 
 simtime = 1 #duration of the simulation in s
@@ -98,6 +99,7 @@ u0 = b*v0
 reset = '''
     v = c
     u += d
+    ge /= 2
 '''
 
 img = np.empty(img_dims)
@@ -107,8 +109,8 @@ g = 2
 
 spikes = []
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
-hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)
-output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=20*br.ms, reset=reset)
+hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
+output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
 
 #objects.append(hidden_neurons)
 Sa = br.Synapses(input_neurons, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
@@ -155,7 +157,7 @@ S_out = br.SpikeMonitor(output_neurons, record=True)
 #OUT = open('weights.txt', 'a')
 
 number = 3
-T = 30
+T = 20
 N_o = 1
 N_h = 1
 
@@ -173,11 +175,24 @@ print "======================================================================"
 print "\t\t\tTraining with ReSuMe"
 print "======================================================================"
 
+if bench == 'xor':
+    desired_times = [-1, -1]
+    extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    diff = extreme_spikes[1] + extreme_spikes[0]
+    diff_r = diff / 10
+
+    extreme_spikes[0] = extreme_spikes[0] + diff_r
+    extreme_spikes[1] = extreme_spikes[1] + diff_r
+
+    desired_times[0] = extreme_spikes[0]*br.second
+    desired_times[1] = extreme_spikes[1]*br.second
+
+else:
+    pudb.set_trace()
+
 for number in range(4):
     print "\tTRAINING: number = ", number
-    #if number == 3:
-    #    pudb.set_trace()
-    train.ReSuMe(in_out, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 
 print "======================================================================"
 print "\t\t\tTesting"
@@ -190,37 +205,8 @@ for number in range(4):
             Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
     if number < 2:
-        desired = 0.010
+        desired = desired_times[0]
     else:
-        desired = 0.016
+        desired = desired_times[1]
 
-    print "Number, Desired, Actual = ", number, ", ", desired, ", ", S_out.spiketimes
-#
-#    snn.Plot(Mv, number)
-#
-#br.show()
-#for number in range(4):
-
-#print "spike times: ", S_out.spikes
-
-#br.plot(210)
-"""
-dw = 0.07
-spikes_store = []
-for i in range(40):
-    snn.Run(40, v0, u0, bench, number, \
-            input_neurons, hidden_neurons, output_neurons, \
-            Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-
-    Sb.w[0] += dw
-
-    spikes_store.append([])
-    for j in range(len(S_out.spiketimes)):
-        if len(S_out.spiketimes[j]) > 0:
-            spikes_store[i].append(([i, j], S_out.spiketimes[j][0]))
-
-for i in range(len(spikes_store)):
-    for j in range(len(spikes_store[i])):
-        print spikes_store[i][j], ", ",
-    print "\n"
-"""
+    print "Number, Desired, Actual = ", number, ", ", desired, ", ", S_out.spiketimes[0]
