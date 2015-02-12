@@ -140,39 +140,48 @@ def ModifyWeights(S, dv):
 
 def CollectSpikes(N_hidden, S_hidden, S_out):
     spikes_hidden = []
-    pudb.set_trace()
-    for i in range(len(N_hidden)):
+    spikes_out = []
+
+    #pudb.set_trace()
+    for i in range(N_hidden):
         spikes_hidden.append([])
-        for j in range(len(N_hidden[i])):
-            spikes_hidden[i].append(S_hidden[i].spikes)
+        for j in range(len(S_hidden[i].spiketimes)):
+            spikes_hidden[i].append(list(S_hidden[i].spiketimes[j]))
 
-    spikes_out = S_out.spikes
-
+    for i in range(len(S_out.spiketimes)):
+        spikes_out.append(list(S_out.spiketimes[i]))
 
     return spikes_hidden, spikes_out
 
-def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
     #Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-    N_out = len(output_neurons)
-    N_hidden = []
-    for i in range(len(hidden_neurons)):
-        for j in range(len(hidden_neurons[i])):
-            N_hidden.append(len(hidden_neurons[i]))
+    N_out_spikes = []
+    N_hidden_spikes = []
 
-    spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
-    for i in range(N_out):
-        if len(S_out.spiketimes[i]) != N_o:
-            return False
+    N_hidden = len(hidden_neurons)
+    N_out = len(output_neurons)
+    for i in range(N_hidden):
+        N_hidden_spikes.append([])
+        for j in range(len(hidden_neurons[i])):
+            #pudb.set_trace()
+            N_hidden_spikes[i].append(len(hidden_neurons[i]))
 
     #pudb.set_trace()
-    for i in range(len(N_hidden)):
-        for j in range(N_hidden[i]):
-            if len(S_hidden[i].spiketimes[j]) != N_h:
+    spikes_hidden, spikes_out = CollectSpikes(len(N_hidden_spikes), S_hidden, S_out)
+
+    #pudb.set_trace()
+    for i in range(len(spikes_hidden)):
+        for j in range(len(spikes_hidden[i])):
+            if len(spikes_hidden[i][j]) != N_h:
                 return False
+
+    for i in range(len(spikes_out)):
+        if len(spikes_out[i]) != N_o:
+            return False
 
     return True
 
-def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
     dv = 0.2
     i = 0
@@ -180,24 +189,31 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
 
     while done == False: 
 
-        Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
-
+        #pudb.set_trace()
+        Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
         N_hidden = len(hidden_neurons)
+        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+
         spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
         N_out = len(spikes_out)
 
         print "SETTING NO. SPIKES "
-        print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
+        print "hidden: ", 
+        for i in range(len(S_hidden)):
+            print S_hidden[i].spiketimes, " ",
 
+        print "\nout: ", S_out.spiketimes
+
+        #pudb.set_trace()
         hidden_are_set = True
         for i in range(len(hidden_neurons)):
-            if len(S_hidden[i]) < N_h:
-                ModifyWeights(Sa[i], dv)
-                hidden_are_set = False
-            elif len(S_hidden[i]) > N_h:
-                ModifyWeights(Sa[i], -dv)
-                hidden_are_set = False
+            for j in range(len(hidden_neurons[i])):
+                if len(S_hidden[i][j]) < N_h:
+                    ModifyWeights(Sa[i][j], dv)
+                    hidden_are_set = False
+                elif len(S_hidden[i][j]) > N_h:
+                    ModifyWeights(Sa[i][j], -dv)
+                    hidden_are_set = False
 
         if hidden_are_set == True:
             if N_out < N_o:
@@ -209,15 +225,15 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
 
         i += 1
 
-def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
-    br.forget(Sa, Sb)
-    for i in range(len(Sh)):
-        br.forget(Sh[i])
+    for i in range(len(Sa)):
+        br.forget(Sa[i])
+    br.forget(Sb)
     br.reinit(states=False)
-    br.recall(Sa, Sb)
-    for i in range(len(Sh)):
-        br.recall(Sh[i])
+    for i in range(len(Sa)):
+        br.recall(Sa[i])
+    br.recall(Sb)
 
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
@@ -229,7 +245,7 @@ def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons,
         hidden_neurons[i].I = 0
         hidden_neurons[i].ge = 0
 
-    pudb.set_trace()
+    #pudb.set_trace()
     output_neurons.v = v0
     output_neurons.u = u0
     output_neurons.I = 0

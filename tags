@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 B	xor.py	/^B = b*br.ms$/;"	v
-CheckNumSpikes	snn.py	/^def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
+CheckNumSpikes	snn.py	/^def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 CollectSpikes	snn.py	/^def CollectSpikes(N_hidden, S_hidden, S_out):$/;"	f
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
@@ -32,14 +32,13 @@ PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_
 Plot	snn.py	/^def Plot(Mv, number):$/;"	f
 ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
-Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
+Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 S_hidden	xor.py	/^S_hidden = []$/;"	v
 S_in	xor.py	/^S_in = br.SpikeMonitor(input_neurons, record=True)$/;"	v
 S_out	xor.py	/^S_out = br.SpikeMonitor(output_neurons, record=True)$/;"	v
-Sa	xor.py	/^Sa = br.Synapses(input_neurons, hidden_neurons[0], model='w:1', pre='ge+=w')#, max_delay=9*br.ms)$/;"	v
+Sa	xor.py	/^Sa = []$/;"	v
 Sb	xor.py	/^Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w*(2)')$/;"	v
-SetNumSpikes	snn.py	/^def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
-Sh	xor.py	/^Sh = []$/;"	v
+SetNumSpikes	snn.py	/^def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 T	xor.py	/^T = 20$/;"	v
 TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
@@ -55,7 +54,6 @@ c	xor.py	/^c=-65$/;"	v
 count	xor.py	/^count = 0$/;"	v
 d	xor.py	/^d = d*br.mV\/br.ms$/;"	v
 d	xor.py	/^d=6$/;"	v
-dWa	train.py	/^def dWa(Sa, v_diffs, i_diffs):$/;"	f
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
 data_dir	xor.py	/^    data_dir = 'on_pyr\/'$/;"	v
@@ -79,8 +77,10 @@ levels	xor.py	/^levels=4$/;"	v
 make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
 n	xor.py	/^    n = 3   # Dimension of single image (no pyramid)$/;"	v
 n	xor.py	/^    n = 32  # Dimension of largest image in pyramid$/;"	v
+net	xor.py	/^net = br.Network(objects)$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
 number	xor.py	/^number = 3$/;"	v
+objects	xor.py	/^objects = []$/;"	v
 output_neurons	xor.py	/^output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)$/;"	v
 simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
 spikes	xor.py	/^spikes = []$/;"	v

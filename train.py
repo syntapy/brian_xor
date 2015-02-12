@@ -45,21 +45,21 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
         Sb.w[i] = 0
 
     j = 0
-    #Sb.w[0] = 0.01
+    Sb.w[0] = 0
     while True:
 
         snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
         #pudb.set_trace()
         spikes_out = S_out.spiketimes[0]
-        spikes_hidden = S_hidden.spiketimes[0]
+        #spikes_hidden = S_hidden.spiketimes[0]
         n_outspikes = len(spikes_out)
         print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
 
         if n_outspikes == 1:
             if return_val[0] == -1:
                 #pudb.set_trace()
-                return_val[0] = spikes_out[0] - spikes_hidden[0]
+                return_val[0] = spikes_out[0]# - spikes_hidden[0]
             return_val[1] = spikes_out[0]
         elif n_outspikes > 1:
             #pudb.set_trace()
@@ -69,7 +69,7 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
 
         #if j % 1 == 0:
         #    snn.Plot(Mv, 0)
-            
+        #    
         #j += 1
 
 
@@ -92,11 +92,16 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
     while trained == False:
         for i in range(N_hidden):
 
+            pudb.set_trace()
             #print "\t\ti = ", i
             label = snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
-            print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
+            print "Hidden Times: ", 
+            for i in range(len(S_hidden)):
+                print S_hidden[i].spiketimes, " ", 
+
+            print "\nOutput Times: ", S_out.spiketimes
             done = snn.CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
 
             if done == False:
@@ -105,7 +110,7 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
                 snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
             #pudb.set_trace()
             S_l = S_out.spiketimes
-            S_i = S_hidden.spiketimes
+            S_i = S_hidden[-1].spiketimes
             S_d = desired_times[label]
 
             P = P_Index(S_l, S_d)
@@ -160,8 +165,3 @@ def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):
     """
 
     v_diffs, i_diffs = SpikeSlopes(Mv, S_out, d_i)
-
-    
-
-def dWa(Sa, v_diffs, i_diffs):
-    pass

@@ -20,7 +20,7 @@ import train
         Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
 """
 
-#objects = []
+objects = []
 N = 1
 
 vt = -15 * br.mV
@@ -118,17 +118,14 @@ for i in range(len(N_hidden)):
 
 output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
 
-#objects.append(hidden_neurons)
-Sa = br.Synapses(input_neurons, hidden_neurons[0], model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
-
-Sh = []
+Sa = []
+Sa.append(br.Synapses(input_neurons, hidden_neurons[0], model='w:1', pre='ge+=w'))
 for i in range(len(N_hidden) - 1):
-    Sh.append(br.Synapses(hidden_neurons[i], hidden_neurons[i+1], model='w:1', pre='ge+=w'))
+    Sa.append(br.Synapses(hidden_neurons[i], hidden_neurons[i+1], model='w:1', pre='ge+=w'))
 
 Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w*(2)')
 
 v0, u0 = -70*br.mV, -14*br.mV/br.msecond
-
 for i in range(len(hidden_neurons)):
     hidden_neurons[i].v = v0
     hidden_neurons[i].u = u0
@@ -143,13 +140,13 @@ output_neurons.ge = 0
 print "v0 = ", v0
 print "u0 = ", u0
 
-Sa[:,:]=True
+for i in range(len(Sa)):
+    Sa[i][:,:]=True
+    Sa[i].w[:]='8.04*(0.7+0.2*rand())*br.mV'
+    Sa[i].delay='(4)*ms'
+
 Sb[:,:]=True
-
-Sa.w[:]='8.04*(0.7+0.2*rand())*br.mV'
 Sb.w[:]='9.0*(0.1+0.2*rand())*br.mV'
-
-Sa.delay='(4)*ms'
 Sb.delay='(4)*ms'
 #print "n.v0, n.u0 = ", hidden_neurons.v, ", ", hidden_neurons.u
 
@@ -166,9 +163,27 @@ for i in range(len(hidden_neurons)):
 
 S_out = br.SpikeMonitor(output_neurons, record=True)
 
-#objects.append(M)
-#objects.append(Mv)
-#objects.append(Mu)
+objects.append(input_neurons)
+objects.append(output_neurons)
+for i in range(len(hidden_neurons)):
+    objects.append(hidden_neurons[i])
+
+objects.append(S_in)
+objects.append(S_out)
+for i in range(len(hidden_neurons)):
+    objects.append(S_hidden[i])
+
+for i in range(len(N_hidden)):
+    objects.append(Sa[i])
+
+objects.append(Sb)
+
+objects.append(M)
+objects.append(Mv)
+objects.append(Mu)
+
+#pudb.set_trace()
+net = br.Network(objects)
 
 '''         TRAINING        '''
 #Net = br.Network(objects)
@@ -183,11 +198,14 @@ print "======================================================================"
 print "\t\t\tSetting number of spikes"
 print "======================================================================"
 
+#pudb.set_trace()
 for i in range(10):
     for number in range(3, -1, -1):
-        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sh, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
         print "\tDone! for number = ", number
 
+#snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+#snn.Plot(Mv, 1)
 print "======================================================================"
 print "\t\t\tTraining with ReSuMe"
 print "======================================================================"
