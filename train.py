@@ -92,7 +92,7 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
     while trained == False:
         for i in range(N_hidden):
 
-            pudb.set_trace()
+            #pudb.set_trace()
             #print "\t\ti = ", i
             label = snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)

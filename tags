@@ -4,11 +4,16 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+A	xor.py	/^A=0.02$/;"	v
 B	xor.py	/^B = b*br.ms$/;"	v
+B	xor.py	/^B=0.2$/;"	v
+C	xor.py	/^C=-65$/;"	v
 CheckNumSpikes	snn.py	/^def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 CollectSpikes	snn.py	/^def CollectSpikes(N_hidden, S_hidden, S_out):$/;"	f
+D	xor.py	/^D=6$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
+IsNumber	snn.py	/^def IsNumber(character):$/;"	f
 L	train.py	/^def L(t):$/;"	f
 LowPass	snn.py	/^def LowPass(S):$/;"	f
 M	xor.py	/^M =br.StateMonitor(output_neurons,'ge',record=0)$/;"	v
@@ -18,42 +23,44 @@ Mv	xor.py	/^Mv=br.StateMonitor(output_neurons,'v',record=0)$/;"	v
 N	xor.py	/^    N = 0  # Number of filters$/;"	v
 N	xor.py	/^    N = 1$/;"	v
 N	xor.py	/^N = 1$/;"	v
+N	xor.py	/^N =br.StateMonitor(hidden_neurons[0],'ge',record=0)$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
 N_hidden	xor.py	/^N_hidden = 4$/;"	v
 N_hidden	xor.py	/^N_hidden = [3, 3]$/;"	v
 N_in	xor.py	/^N_in = 2$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
+Nu	xor.py	/^Nu=br.StateMonitor(hidden_neurons[0],'u',record=0)$/;"	v
+Nv	xor.py	/^Nv=br.StateMonitor(hidden_neurons[0],'v',record=0)$/;"	v
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
 Pc	xor.py	/^Pc = 0.05$/;"	v
 PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
-Plot	snn.py	/^def Plot(Mv, number):$/;"	f
+Plot	snn.py	/^def Plot(M, Mu, Mv, number):$/;"	f
 ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
+ReadNumber	snn.py	/^def ReadNumber(line, j):$/;"	f
+ReadWeights	snn.py	/^def ReadWeights(Sa, Sb, filename):$/;"	f
 Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 S_hidden	xor.py	/^S_hidden = []$/;"	v
 S_in	xor.py	/^S_in = br.SpikeMonitor(input_neurons, record=True)$/;"	v
 S_out	xor.py	/^S_out = br.SpikeMonitor(output_neurons, record=True)$/;"	v
 Sa	xor.py	/^Sa = []$/;"	v
-Sb	xor.py	/^Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w*(2)')$/;"	v
+SaveWeights	snn.py	/^def SaveWeights(Sa, Sb, filename):$/;"	f
+Sb	xor.py	/^Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w')$/;"	v
 SetNumSpikes	snn.py	/^def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 T	xor.py	/^T = 20$/;"	v
 TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
-a	xor.py	/^a = a\/br.ms$/;"	v
-a	xor.py	/^a=0.02$/;"	v
-b	xor.py	/^b = b\/br.ms$/;"	v
-b	xor.py	/^b=0.2$/;"	v
+a	xor.py	/^a = A\/br.ms$/;"	v
+b	xor.py	/^b = B\/br.ms$/;"	v
 bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
-c	xor.py	/^c = c * br.mvolt$/;"	v
-c	xor.py	/^c=-65$/;"	v
+c	xor.py	/^c = C * br.mvolt$/;"	v
 count	xor.py	/^count = 0$/;"	v
-d	xor.py	/^d = d*br.mV\/br.ms$/;"	v
-d	xor.py	/^d=6$/;"	v
+d	xor.py	/^d = D*br.mV\/br.ms$/;"	v
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
 data_dir	xor.py	/^    data_dir = 'on_pyr\/'$/;"	v
@@ -86,7 +93,8 @@ simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
 spikes	xor.py	/^spikes = []$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
 tau	xor.py	/^tau=15$/;"	v
-u0	xor.py	/^u0 = b*v0$/;"	v
-v0	xor.py	/^v0 = br.mV*br.sqrt((((5 - B) \/ 0.08)**2-140) \/ 0.04) - br.mV*((5 - B) \/ 0.08)$/;"	v
+u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$/;"	v
+v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2)) * br.mV$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v
+weight_file	xor.py	/^weight_file = "weights.txt"$/;"	v
