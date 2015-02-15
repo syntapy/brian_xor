@@ -34,13 +34,28 @@ def P_Index(S_l, S_d):
 
     return return_val
 
+def ReadTimes(filename):
+    f = open(filename, 'r')
+
+    #pudb.set_trace()
+    lines = f.readlines()
+    f.close()
+
+    desired_times = [-1] * len(lines)
+
+    for i in range(len(lines)):
+        tmp = float(lines[i][:-1])
+        desired_times[i] = tmp * br.second
+
+    return desired_times
+
 def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
-    n_hidden = len(hidden_neurons) 
-    old_weights = np.empty(n_hidden)
+    n_hidden_last = len(hidden_neurons[-1]) 
+    old_weights = np.empty(n_hidden_last)
 
     return_val = [-1, -1]
 
-    for i in range(n_hidden):
+    for i in range(n_hidden_last):
         old_weights[i] = Sb.w[i]
         Sb.w[i] = 0
 
@@ -73,7 +88,7 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
         #j += 1
 
 
-    for i in range(n_hidden):
+    for i in range(n_hidden_last):
         Sb.w[i] = old_weights[i]
 
     return return_val
@@ -81,7 +96,7 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
 def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
 
     img, label = snn.ReadImg(number=number, bench=bench)
-    N_hidden = len(hidden_neurons)
+    N_hidden_last = len(hidden_neurons[-1])
     N_out = len(output_neurons)
 
     N_h = 1
@@ -90,7 +105,7 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
     trained = False
 
     while trained == False:
-        for i in range(N_hidden):
+        for i in range(N_hidden_last):
 
             #pudb.set_trace()
             #print "\t\ti = ", i
@@ -98,8 +113,8 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
                 Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
             print "Hidden Times: ", 
-            for i in range(len(S_hidden)):
-                print S_hidden[i].spiketimes, " ", 
+            for j in range(len(S_hidden)):
+                print S_hidden[j].spiketimes, " ", 
 
             print "\nOutput Times: ", S_out.spiketimes
             done = snn.CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
@@ -119,7 +134,9 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
                 trained = True
                 break
 
-            #pudb.set_trace()
+            print "i = ", i
+            #if i == 2:
+            #    pudb.set_trace()
             sd = max(0, float(S_d) - S_i[i][0])
             sl = max(0, S_l[0][0] - S_i[i][0])
             Wd = WeightChange(sd)

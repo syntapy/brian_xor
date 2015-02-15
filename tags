@@ -25,8 +25,7 @@ N	xor.py	/^    N = 1$/;"	v
 N	xor.py	/^N = 1$/;"	v
 N	xor.py	/^N =br.StateMonitor(hidden_neurons[0],'ge',record=0)$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
-N_hidden	xor.py	/^N_hidden = 4$/;"	v
-N_hidden	xor.py	/^N_hidden = [3, 3]$/;"	v
+N_hidden	xor.py	/^N_hidden = [24, 24]$/;"	v
 N_in	xor.py	/^N_in = 2$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
@@ -41,6 +40,7 @@ Plot	snn.py	/^def Plot(M, Mu, Mv, number):$/;"	f
 ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
 ReadNumber	snn.py	/^def ReadNumber(line, j):$/;"	f
+ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
 ReadWeights	snn.py	/^def ReadWeights(Sa, Sb, filename):$/;"	f
 Run	snn.py	/^def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 S_hidden	xor.py	/^S_hidden = []$/;"	v
@@ -51,7 +51,7 @@ SaveWeights	snn.py	/^def SaveWeights(Sa, Sb, filename):$/;"	f
 Sb	xor.py	/^Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w')$/;"	v
 SetNumSpikes	snn.py	/^def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
-T	xor.py	/^T = 20$/;"	v
+T	xor.py	/^T = 40$/;"	v
 TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
 a	xor.py	/^a = A\/br.ms$/;"	v
@@ -66,12 +66,14 @@ data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
 data_dir	xor.py	/^    data_dir = 'on_pyr\/'$/;"	v
 desired	xor.py	/^        desired = desired_times[0]$/;"	v
 desired	xor.py	/^        desired = desired_times[1]$/;"	v
-desired_times	xor.py	/^    desired_times = [-1, -1]$/;"	v
-diff	xor.py	/^    diff = extreme_spikes[1] + extreme_spikes[0]$/;"	v
-diff_r	xor.py	/^    diff_r = diff \/ 10$/;"	v
+desired_times	xor.py	/^        desired_times = [-1, -1]$/;"	v
+desired_times	xor.py	/^        desired_times = train.ReadTimes("times.txt")$/;"	v
+diff	xor.py	/^        diff = extreme_spikes[1] + extreme_spikes[0]$/;"	v
+diff_r	xor.py	/^        diff_r = diff \/ 10$/;"	v
 dir	xor.py	/^    dir = 'li-data\/'$/;"	v
 dir	xor.py	/^    dir = 'minst\/'$/;"	v
-extreme_spikes	xor.py	/^    extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)$/;"	v
+extreme_spikes	xor.py	/^        extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)$/;"	v
+f	xor.py	/^        f = open("times.txt", 'w')$/;"	v
 g	xor.py	/^g = 2$/;"	v
 hidden_neurons	xor.py	/^hidden_neurons = []# * len(N_hidden)$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
@@ -92,7 +94,7 @@ output_neurons	xor.py	/^output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_
 simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
 spikes	xor.py	/^spikes = []$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
-tau	xor.py	/^tau=15$/;"	v
+tau	xor.py	/^tau=5$/;"	v
 u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$/;"	v
 v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2)) * br.mV$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v

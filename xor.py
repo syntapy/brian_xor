@@ -38,7 +38,7 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_hidden = 4
+N_hidden = [24, 24]
 N_out = 1
 
 Pc = 0.05
@@ -119,7 +119,6 @@ count = 0
 g = 2
 
 spikes = []
-N_hidden = [3, 3]
 hidden_neurons = []# * len(N_hidden)
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
 
@@ -165,9 +164,9 @@ M =br.StateMonitor(output_neurons,'ge',record=0)
 Mv=br.StateMonitor(output_neurons,'v',record=0)
 Mu=br.StateMonitor(output_neurons,'u',record=0)
 
-N =br.StateMonitor(hidden_neurons[1],'ge',record=0)
-Nv=br.StateMonitor(hidden_neurons[1],'v',record=0)
-Nu=br.StateMonitor(hidden_neurons[1],'u',record=0)
+N =br.StateMonitor(hidden_neurons[0],'ge',record=0)
+Nv=br.StateMonitor(hidden_neurons[0],'v',record=0)
+Nu=br.StateMonitor(hidden_neurons[0],'u',record=0)
 
 S_in = br.SpikeMonitor(input_neurons, record=True)
 S_hidden = []
@@ -240,16 +239,26 @@ print "\t\t\tTraining with ReSuMe"
 print "======================================================================"
 
 if bench == 'xor':
-    desired_times = [-1, -1]
-    extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
-    diff = extreme_spikes[1] + extreme_spikes[0]
-    diff_r = diff / 10
+    if op.isfile("times.txt"):
+        desired_times = train.ReadTimes("times.txt")
+    else:
 
-    extreme_spikes[0] = extreme_spikes[0] + diff_r
-    extreme_spikes[1] = extreme_spikes[1] + diff_r
+        desired_times = [-1, -1]
+        extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+        diff = extreme_spikes[1] + extreme_spikes[0]
+        diff_r = diff / 10
 
-    desired_times[0] = extreme_spikes[0]*br.second
-    desired_times[1] = extreme_spikes[1]*br.second
+        extreme_spikes[0] = extreme_spikes[0] + diff_r
+        extreme_spikes[1] = extreme_spikes[1] + diff_r
+
+        desired_times[0] = extreme_spikes[0]*br.second
+        desired_times[1] = extreme_spikes[1]*br.second
+
+        f = open("times.txt", 'w')
+        f.write(str(float(desired_times[0])))
+        f.write("\n")
+        f.write(str(float(desired_times[1])))
+        f.write("\n")
 
 else:
     pudb.set_trace()
