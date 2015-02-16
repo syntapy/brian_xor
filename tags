@@ -25,7 +25,7 @@ N	xor.py	/^    N = 1$/;"	v
 N	xor.py	/^N = 1$/;"	v
 N	xor.py	/^N =br.StateMonitor(hidden_neurons[0],'ge',record=0)$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
-N_hidden	xor.py	/^N_hidden = [24, 24]$/;"	v
+N_hidden	xor.py	/^N_hidden = [96]$/;"	v
 N_in	xor.py	/^N_in = 2$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v

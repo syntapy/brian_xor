@@ -4,7 +4,6 @@ import numpy as np
 import brian as br
 import time
 import pudb
-#import winpdb
 import snn 
 import train
 
@@ -17,8 +16,10 @@ import train
         X Clean it up so that it is easier to tweak parameters
         X Test the firing time range of a neuron
         X Add multiple layers
-        Tweak parameters to make it solve the XOR problem efficiently
+        X Tweak parameters to make it solve the XOR problem efficiently
         X Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
+        Make SetNumSpikes(args...) more efficient, and have the weights made to no be on the border of a change in number of spikes
+        Make SetNumSpikes(args...) better at fine tuning the weights, esp. when there are very large numbers of hidden layer neurons
 """
 
 weight_file = "weights.txt"
@@ -38,7 +39,7 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_hidden = [24, 24]
+N_hidden = [96]
 N_out = 1
 
 Pc = 0.05
@@ -152,7 +153,7 @@ print "u0 = ", u0
 
 for i in range(len(Sa)):
     Sa[i][:,:]=True
-    Sa[i].w[:]='8.04*(0.7+0.2*rand())*br.mV'
+    Sa[i].w[:]='8.04*(0.3+0.8*rand())*br.mV'
     Sa[i].delay='(4)*ms'
 
 Sb[:,:]=True

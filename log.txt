@@ -1,0 +1,8 @@
+1: [24, 24]
+2: [24, 24] but larger variation in initial weights
+3: [48]
+
+
+
+
+From experiments on one case, it seems that when you have lots of hidden layers (maybe 5 or 6) and when the last one has lots of neurons (maybe 12) you have a problem where the output neuron is firing before some of the hidden layer neurons.
