@@ -49,7 +49,7 @@ def ReadTimes(filename):
 
     return desired_times
 
-def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def TestNodeRange(T, N, v0, u0, bench, number, neuron_groups, synapse_groups, M, Mv, Mu, S_in, S_hidden, S_out):
     n_hidden_last = len(hidden_neurons[-1]) 
     old_weights = np.empty(n_hidden_last)
 

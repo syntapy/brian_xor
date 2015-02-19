@@ -1,3 +1,4 @@
+import initial as init
 import numpy as np
 import brian as br
 import pudb
@@ -121,9 +122,6 @@ def d_w(S_d, S_l, S_in):
 
     return return_val
 
-def LowPass(S):
-    pass
-
 def P_Index(S_d, S_l):
     return_val = 0
 
@@ -142,38 +140,38 @@ def ModifyWeights(S, dv):
         weet = weet*br.volt + dv*br.mV
         S.w[i] = weet
 
-def CollectSpikes(N_hidden, S_hidden, S_out):
+    return S
+
+def CollectSpikes(spike_monitors):
     spikes_hidden = []
     spikes_out = []
 
+    # hidden spikes
     #pudb.set_trace()
-    for i in range(N_hidden):
+    for i in range(len(spike_monitors[2])):
         spikes_hidden.append([])
-        for j in range(len(S_hidden[i].spiketimes)):
-            spikes_hidden[i].append(list(S_hidden[i].spiketimes[j]))
+        for j in range(len(spike_monitors[2][0][i].spiketimes)):
+            spikes_hidden[i].append(list(spike_monitors[2][0][i].spiketimes[j]))
 
-    for i in range(len(S_out.spiketimes)):
-        spikes_out.append(list(S_out.spiketimes[i]))
+    for i in range(len(spike_monitors[3].spiketimes)):
+        spikes_out.append(spike_monitors[3].spiketimes[i])
 
     return spikes_hidden, spikes_out
 
-def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
-    #Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+def CheckNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
+        neuron_groups, synapse_groups, output_monitor, spike_monitors):
+
     N_out_spikes = []
     N_hidden_spikes = []
 
-    N_hidden = len(hidden_neurons)
-    N_out = len(output_neurons)
-    for i in range(N_hidden):
+    N_hidden = len(neuron_groups[2])
+    N_out = len(neuron_groups[3])
+    for i in range(len(neuron_groups[2])):
         N_hidden_spikes.append([])
-        for j in range(len(hidden_neurons[i])):
-            #pudb.set_trace()
-            N_hidden_spikes[i].append(len(hidden_neurons[i]))
+        for j in range(len(neuron_groups[2][i])):
+            N_hidden_spikes[i].append(len(neuron_groups[2][i]))
 
-    #pudb.set_trace()
-    spikes_hidden, spikes_out = CollectSpikes(len(N_hidden_spikes), S_hidden, S_out)
-
-    #pudb.set_trace()
+    spikes_hidden, spikes_out = CollectSpikes(spike_monitors)
     for i in range(len(spikes_hidden)):
         for j in range(len(spikes_hidden[i])):
             if len(spikes_hidden[i][j]) != N_h:
@@ -185,7 +183,8 @@ def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neu
 
     return True
 
-def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
+    neuron_groups, synapse_groups, output_monitor, spike_monitors, train=False, letter=None):
 
     dv = 0.2
     k = 0
@@ -193,39 +192,41 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
 
     while done == False: 
 
-        #pudb.set_trace()
-        Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-        N_hidden = len(hidden_neurons)
-        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+        pudb.set_trace()
+        Run(T, v0, u0, I0, ge0, bench, number, \
+            neuron_groups, synapse_groups, output_monitor, spike_monitors)
 
-        spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
-        N_out = len(spikes_out[0])
+        N_hidden = len(neuron_groups[2])
+        done = CheckNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
+            neuron_groups, synapse_groups, output_monitor, spike_monitors)
+
+        spikes_hidden, spikes_out = CollectSpikes(spike_monitors)
+        N_out = len(spikes_out)
 
         print "SETTING NO. SPIKES "
         print "hidden: ", 
-        for i in range(len(S_hidden)):
-            print S_hidden[i].spiketimes, " ",
+        for i in range(len(spike_monitors[2])):
+            for j in range(len(spike_monitors[2][i])):
+                print spike_monitors[2][i][j].spiketimes, " ",
 
-        print "\nout: ", S_out.spiketimes
+        print "\nout: ", spike_monitors[3].spiketimes
 
-        #if len(S_out.spiketimes
-
-        #pudb.set_trace()
         hidden_are_set = True
-        for i in range(len(hidden_neurons)):
-            for j in range(len(hidden_neurons[i])):
-                if len(S_hidden[i][j]) < N_h:
-                    ModifyWeights(Sa[i][j], dv)
+        #pudb.set_trace()
+        for i in range(len(neuron_groups[2])):
+            for j in range(len(neuron_groups[2][i])):
+                if len(spike_monitors[2][i][j].spiketimes[0]) < N_h:
+                    ModifyWeights(synapse_groups[2][i][j], dv)
                     hidden_are_set = False
-                elif len(S_hidden[i][j]) > N_h:
-                    ModifyWeights(Sa[i][j], -dv)
+                elif len(spike_monitors[2][i][j]) > N_h:
+                    ModifyWeights(synapse_groups[2][i][j.spiketimes[0]], -dv)
                     hidden_are_set = False
 
         if hidden_are_set == True:
             if N_out < N_o:
-                ModifyWeights(Sb, dv)
+                ModifyWeights(synapse_groups[3], dv)
             elif N_out > N_o:
-                ModifyWeights(Sb, -dv)
+                ModifyWeights(synapse_groups[3], -dv)
             elif N_out == N_o:# or i == 100:
                 break
 
@@ -234,7 +235,55 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
 
         k += 1
 
-def SaveWeights(Sa, Sb, filename):
+def Run(T, v0, u0, I0, ge0, bench, number, \
+    neuron_groups, synapse_groups, output_monitor, spike_monitors, \
+    train=False, letter=None):
+
+    for i in range(len(neuron_groups)):
+        if type(neuron_groups[i]) == list:
+            for j in range(len(neuron_groups[i])):
+                br.recall(neuron_groups[i][j])
+        else:
+            br.recall(neuron_groups[i])
+
+    for i in range(len(synapse_groups)):
+        if type(synapse_groups[i]) == list:
+            for j in range(len(synapse_groups[i])):
+                br.forget(synapse_groups[i][j])
+        else:
+            br.forget(synapse_groups[i])
+
+    br.reinit(states=False)
+
+    for i in range(len(synapse_groups)):
+        if type(synapse_groups[i]) == list:
+            for j in range(len(synapse_groups[i])):
+                br.recall(synapse_groups[i][j])
+        else:
+            br.recall(synapse_groups[i])
+
+    img, label = ReadImg(number=number, bench=bench, letter=letter)
+    spikes = GetInSpikes(img, bench=bench)
+    if number >= 0 and number < 4:
+        neuron_groups[0].set_spiketimes(spikes)
+    else:
+        neuron_groups[0].set_spiketimes([])
+
+    init.NeuronInitConditions(neuron_groups, v0, u0, I0, ge0)
+    br.run(T*br.msecond,report='text')
+
+    return label
+
+def Plot(monitor, number):
+    br.plot(211)
+    br.plot((monitor[0].times)/br.ms,2000*(monitor[0][0]/br.mvolt) - 58000, label='v')
+    br.plot(monitor[1].times/br.ms,monitor[1][0]/br.mvolt, label='u')
+    br.plot((monitor[2].times)/br.ms,2000*(monitor[2][0]/br.mvolt) - 58000, label='ge')
+    br.legend()
+    br.show()
+
+"""
+def SaveWeights(Si, Sl, Sa, Sb, filename):
     N_hidden = len(Sa)
 
     f = open(filename, 'w')
@@ -274,14 +323,24 @@ def ReadNumber(line, j):
 
     return number, k
 
-def ReadWeights(Sa, Sb, filename):
+def ReadWeights(Si, Sl, Sa, Sb, filename):
     f = open(filename, 'r')
 
     lines = f.readlines()
 
-    if len(Sa) + 1 != len(lines):
+    if len(Si) + len(Sl.w[:]) + len(Sa) + len(Sb) != len(lines):
         print "ERROR!"
         pudb.set_trace()
+
+    #for i in range(len(
+
+    line = lines[-1]
+    j = 0
+    index = 0
+    while j < len(line) - 1:
+        number, j = ReadNumber(line, j)
+        Sb.w[index] = number
+        index += 1
 
     for i in range(len(Sa)):
         line = lines[i]
@@ -300,46 +359,5 @@ def ReadWeights(Sa, Sb, filename):
         Sb.w[index] = number
         index += 1
 
-    return Sa, Sb
-
-def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
-
-    for i in range(len(Sa)):
-        br.forget(Sa[i])
-    br.forget(Sb)
-    br.reinit(states=False)
-    for i in range(len(Sa)):
-        br.recall(Sa[i])
-    br.recall(Sb)
-
-    img, label = ReadImg(number=number, bench=bench, letter=letter)
-    spikes = GetInSpikes(img, bench=bench)
-    if number >= 0 and number < 4:
-        input_neurons.set_spiketimes(spikes)
-    else:
-        input_neurons.set_spiketimes([])
-
-    for i in range(len(hidden_neurons)):
-        hidden_neurons[i].v = v0
-        hidden_neurons[i].u = u0
-        hidden_neurons[i].I = 0
-        hidden_neurons[i].ge = 0
-
-    #pudb.set_trace()
-    output_neurons.v = v0
-    output_neurons.u = u0
-    output_neurons.I = 0
-    output_neurons.ge = 0
-    br.run(T*br.msecond,report='text')
-
-    return label
-
-def Plot(M, Mu, Mv, number):
-    br.plot(211)
-    #pudb.set_trace()
-    br.plot(Mu.times/br.ms,Mu[0]/br.mvolt, label='u')
-    br.plot((Mv.times)/br.ms,2000*(Mv[0]/br.mvolt) - 58000, label='v')
-    br.plot((M.times)/br.ms,2000*(M[0]/br.mvolt) - 58000, label='ge')
-    #br.plot(Mv.times/br.ms,Mv[
-    br.legend()
-    br.show()
+    return Si, Sl, Sa, Sb
+"""
