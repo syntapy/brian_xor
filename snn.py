@@ -157,7 +157,7 @@ def CollectSpikes(N_hidden, S_hidden, S_out):
 
     return spikes_hidden, spikes_out
 
-def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
     #Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
     N_out_spikes = []
     N_hidden_spikes = []
@@ -185,7 +185,7 @@ def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neu
 
     return True
 
-def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
     dv = 0.2
     k = 0
@@ -194,9 +194,9 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
     while done == False: 
 
         #pudb.set_trace()
-        Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+        Run(T, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
         N_hidden = len(hidden_neurons)
-        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
 
         spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
         N_out = len(spikes_out[0])
@@ -207,8 +207,6 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neuro
             print S_hidden[i].spiketimes, " ",
 
         print "\nout: ", S_out.spiketimes
-
-        #if len(S_out.spiketimes
 
         #pudb.set_trace()
         hidden_are_set = True
@@ -302,12 +300,14 @@ def ReadWeights(Sa, Sb, filename):
 
     return Sa, Sb
 
-def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def Run(T, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
 
+    br.forget(Sin, Sliq)
     for i in range(len(Sa)):
         br.forget(Sa[i])
     br.forget(Sb)
     br.reinit(states=False)
+    br.recall(Sin, Sliq)
     for i in range(len(Sa)):
         br.recall(Sa[i])
     br.recall(Sb)
@@ -318,6 +318,12 @@ def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons,
         input_neurons.set_spiketimes(spikes)
     else:
         input_neurons.set_spiketimes([])
+
+    for i in range(len(liquid_neurons)):
+        liquid_neurons[i].v = v0
+        liquid_neurons[i].u = u0
+        liquid_neurons[i].I = 0
+        liquid_neurons[i].ge = 0
 
     for i in range(len(hidden_neurons)):
         hidden_neurons[i].v = v0

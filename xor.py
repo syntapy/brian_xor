@@ -39,7 +39,9 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_hidden = [96]
+N_liquid = [14, 3, 3]
+liquid_p = 0.7
+N_hidden = [4]
 N_out = 1
 
 Pc = 0.05
@@ -119,24 +121,48 @@ img = np.empty(img_dims)
 count = 0
 g = 2
 
+liquid_neurons = br.NeuronGroup(N_liquid[0], model=eqs_hidden_neurons, refractory=2*br.ms, reset=reset)
+liquid_inputs = liquid_neurons.subgroup(N_liquid[1])
+liquid_hidden = liquid_neurons.subgroup(N_liquid[0] - N_liquid[1] - N_liquid[2])
+liquid_output = liquid_neurons.subgroup(N_liquid[2])
+
 spikes = []
 hidden_neurons = []# * len(N_hidden)
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
+
+Sin = br.Synapses(input_neurons, liquid_inputs, model='w:1', pre='ge+=w')
+Sliq = br.Synapses(liquid_neurons, liquid_neurons, model='w:1', pre='ge+=w')
+
 
 for i in range(len(N_hidden)):
     hidden_neurons.append(br.NeuronGroup(N_hidden[i], model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset))
 
 output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
 
+Sin[:,:]=True
+Sin.w[:]='3.04*(0.5 + 0.5*rand())*br.mV'
+Sin.delay='4*ms'
+
+Sliq[:,:] = True
+Sliq.w[:]='8.04*(rand())*br.mV'
+Sliq.delay='3*rand()*ms'
+
 #pudb.set_trace()
 Sa = []
-Sa.append(br.Synapses(input_neurons, hidden_neurons[0], model='w:1', pre='ge+=w'))
+Sa.append(br.Synapses(liquid_output, hidden_neurons[0], model='w:1', pre='ge+=w'))
 for i in range(len(N_hidden) - 1):
     Sa.append(br.Synapses(hidden_neurons[i], hidden_neurons[i+1], model='w:1', pre='ge+=w'))
 
 Sb = br.Synapses(hidden_neurons[-1], output_neurons, model='w:1', pre='ge+=w')
 
 v0, u0 = -70*br.mV, -14*br.mV/br.msecond
+
+for i in range(len(liquid_neurons)):
+    liquid_neurons[i].v = v0
+    liquid_neurons[i].u = u0
+    liquid_neurons[i].I = 0
+    liquid_neurons[i].ge = 0
+
 for i in range(len(hidden_neurons)):
     hidden_neurons[i].v = v0
     hidden_neurons[i].u = u0
@@ -165,9 +191,9 @@ M =br.StateMonitor(output_neurons,'ge',record=0)
 Mv=br.StateMonitor(output_neurons,'v',record=0)
 Mu=br.StateMonitor(output_neurons,'u',record=0)
 
-N =br.StateMonitor(hidden_neurons[0],'ge',record=0)
-Nv=br.StateMonitor(hidden_neurons[0],'v',record=0)
-Nu=br.StateMonitor(hidden_neurons[0],'u',record=0)
+N =br.StateMonitor(liquid_neurons[0],'ge',record=0)
+Nv=br.StateMonitor(liquid_neurons[0],'v',record=0)
+Nu=br.StateMonitor(liquid_neurons[0],'u',record=0)
 
 S_in = br.SpikeMonitor(input_neurons, record=True)
 S_hidden = []
@@ -205,7 +231,7 @@ net = br.Network(objects)
 #OUT = open('weights.txt', 'a')
 
 number = 3
-T = 40
+T = 60
 N_o = 1
 N_h = 1
 
@@ -214,26 +240,27 @@ print "\t\t\tSetting number of spikes"
 print "======================================================================"
 
 
-if op.isfile(weight_file):
-    #pudb.set_trace()
-    Sa, Sb = snn.ReadWeights(Sa, Sb, weight_file)
+#if op.isfile(weight_file):
+#    #pudb.set_trace()
+#    Sa, Sb = snn.ReadWeights(Sa, Sb, weight_file)
 
-else:
+#else:
+if True:
     for i in range(10):
         for number in range(3, -1, -1):
             #if i == 9 and number == 0:
-            #    pudb.set_trace()
-            snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+            #pudb.set_trace()
+            snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
             print "\tDone! for number = ", number
 
-    snn.SaveWeights(Sa, Sb, "weights.txt")
+        #snn.SaveWeights(Sa, Sb, "weights.txt")
 
 #pudb.set_trace()
 #Sa[0].w[:] = '0*br.mV'
-snn.Run(T, v0, u0, bench, 0, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+snn.Run(T, v0, u0, bench, 0, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 #pudb.set_trace()
 #snn.Plot(N, Nu, Nv, 1)
-#snn.Plot(M, Mu, Mv, 1)
+snn.Plot(M, Mu, Mv, 1)
 
 print "======================================================================"
 print "\t\t\tTraining with ReSuMe"
@@ -245,7 +272,7 @@ if bench == 'xor':
     else:
 
         desired_times = [-1, -1]
-        extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+        extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
         diff = extreme_spikes[1] + extreme_spikes[0]
         diff_r = diff / 10
 
@@ -266,7 +293,7 @@ else:
 
 for number in range(4):
     print "\tTRAINING: number = ", number
-    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, liquid_neurons, hidden_neurons, output_neurons, Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
 
 print "======================================================================"
 print "\t\t\tTesting"
@@ -275,8 +302,8 @@ print "======================================================================"
 #pudb.set_trace()
 for number in range(4):
     snn.Run(T, v0, u0, bench, number, \
-            input_neurons, hidden_neurons, output_neurons, \
-            Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+            input_neurons, liquid_neurons, hidden_neurons, output_neurons, \
+            Sin, Sliq, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
 
     if number < 2:
         desired = desired_times[0]
