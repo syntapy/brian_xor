@@ -30,11 +30,23 @@ def L(t):
 def P_Index(S_l, S_d):
     return_val = 0
 
+    if type(S_l) != list:
+        pudb.set_trace()
+    elif type(S_l) == list:
+        if len(S_l) < 1:
+            pudb.set_trace()
+        elif type(S_l[0]) == list:
+            if len(S_l[0]) < 1:
+                pudb.set_trace()
     return_val += abs(L(S_d) - L(S_l[0][0]*br.second))
 
     return return_val
 
-def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+
     n_hidden = len(hidden_neurons) 
     old_weights = np.empty(n_hidden)
 
@@ -48,8 +60,11 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
     #Sb.w[0] = 0.01
     while True:
 
-        snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
-                Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+        snn.Run(T, v0, u0, bench, number, input_neurons, \
+                liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                hidden_neurons, output_neurons, \
+                Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+
         #pudb.set_trace()
         spikes_out = S_out.spiketimes[0]
         spikes_hidden = S_hidden.spiketimes[0]
@@ -65,7 +80,7 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
             #pudb.set_trace()
             break
 
-        Sb.w[0] = Sb.w[0] + 0.001
+        Sb.w[0] = Sb.w[0] + 0.0001
 
         #if j % 1 == 0:
         #    snn.Plot(Mv, 0)
@@ -78,7 +93,9 @@ def TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, ou
 
     return return_val
 
-def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
 
     img, label = snn.ReadImg(number=number, bench=bench)
     N_hidden = len(hidden_neurons)
@@ -93,16 +110,32 @@ def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden
         for i in range(N_hidden):
 
             #print "\t\ti = ", i
-            label = snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
-                Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+            #pudb.set_trace()
+            label = snn.Run(T, v0, u0, bench, number, input_neurons, \
+                        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                        hidden_neurons, output_neurons, \
+                        Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+
+            snn.SaveConnectivity(Si, Sl, Sa, Sb, 1)
+            #pudb.set_trace()
 
             print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
-            done = snn.CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+            done = snn.CheckNumSpikes(-1, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+                        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                        hidden_neurons, output_neurons, \
+                        Si, Sl, Sa, Sb, M, Mv, Mu, \
+                        S_in, S_hidden, S_out, train=False, letter=None)
 
             if done == False:
                 print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
-                #pudb.set_trace()
-                snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+                pudb.set_trace()
+                """
+                snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+                        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                        hidden_neurons, output_neurons, \
+                        Si, Sl, Sa, Sb, M, Mv, Mu, \
+                        S_in, S_hidden, S_out, train=False, letter=None)
+                """
 
             #pudb.set_trace()
             S_l = S_out.spiketimes

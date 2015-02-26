@@ -125,12 +125,18 @@ def P_Index(S_d, S_l):
 
     return return_val
 
-def ModifyWeights(S, dv):
+def ModifyWeights(S, dv, rand=0):
     n = len(S.w[:])
-    for i in range(n):
-        weet = S.w[i]
-        weet = weet*br.volt + dv*br.mV
-        S.w[i] = weet
+    if rand == 0:
+        for i in range(n):
+            weet = S.w[i]
+            weet = weet*br.volt + dv*br.mV
+            S.w[i] = weet
+    else:
+        for i in range(n):
+            weet = S.w[i]
+            weet = weet*br.volt + dv*br.rand()*br.mV
+            S.w[i] = weet
 
 def CollectSpikes(N_hidden, S_hidden, S_out):
     spikes_hidden = []
@@ -141,135 +147,276 @@ def CollectSpikes(N_hidden, S_hidden, S_out):
 
     return spikes_hidden, spikes_out
 
-def CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
-    #Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+def CheckNumSpikes(layer, T, N_h, N_o, v0, u0, bench, number, \
+        input_neurons, liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None):
+
     N_out = len(output_neurons)
     N_hidden = len(hidden_neurons)
     spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
 
-    for i in range(N_out):
-        if len(S_out.spiketimes[i]) != N_o:
-            return False
+    if layer == 0 or layer == -1:
+        for i in range(N_hidden):
+            if len(S_hidden.spiketimes[i]) != N_h:
+                return False
 
-    #pudb.set_trace()
-    for i in range(N_hidden):
-        if len(S_hidden.spiketimes[i]) != N_h:
-            return False
+    elif layer == 1 or layer == -1:
+        for i in range(N_out):
+            if len(S_out.spiketimes[i]) != N_o:
+                return False
 
     return True
 
-def SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
+def SetNumSpikes(layer, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None):
 
-    dv = 0.2
+    dv = 0.02
+    min_dv = 0.001
     i = 0
-    done = False
+    last = 0 # -1, 0, 1: left, neither, right
 
-    while done == False: 
+    print "layer = ", layer
+    if layer == 0:
+        dv = 0.02
+        right_dv = True
+    else:
+        dv = 0.0005
+        div = 0
+    modified = True
+    j = 0
+    while modified == True:
+        modified = False
+        print "\tj = ", j
+        j += 1
+        for number in range(4):
+            done = False
+            print "\t\tNumber = ", number, "\t"
+            while done == False:
+                #pudb.set_trace()
+                Run(T, v0, u0, bench, number, input_neurons, liquid_in, \
+                        liquid_hidden, liquid_out, liquid_neurons, \
+                        hidden_neurons, output_neurons, \
+                        Si, Sl, Sa, Sb, M, Mv, Mu, \
+                        S_in, S_hidden, S_out, train=True, letter=None)
 
-        Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-        done = CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+                done = CheckNumSpikes(layer, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+                                liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                                hidden_neurons, output_neurons, \
+                                Si, Sl, Sa, Sb, M, Mv, Mu, \
+                                S_in, S_hidden, S_out, train=False, letter=None)
 
-        N_hidden = len(hidden_neurons)
-        spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
-        N_out = len(spikes_out)
+                N_hidden = len(hidden_neurons)
+                spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
+                N_out = len(spikes_out)
 
-        print "SETTING NO. SPIKES "
-        print "Spike Times: ", S_hidden.spiketimes, " ", S_out.spiketimes
+                hidden_are_set = True
+                if layer == 0:
+                    print "\t\t\t\t."
+                    for i in range(len(hidden_neurons)):
+                        if len(S_hidden[i]) < N_h:
+                            ModifyWeights(Sa[i], dv, 0)
+                            modified = True
+                        elif len(S_hidden[i]) > N_h:
+                            ModifyWeights(Sa[i], -dv, 0)
+                            modified = True
+                else:
+                    print "\t\t\t\tdiv = ", div
+                    print S_hidden.spiketimes
+                    if N_out < N_o:
+                        """
+                        if last == 1:
+                            if dv > min_dv:
+                                dv = dv / 2
+                                div += 1
+                        elif last == 0:
+                            last = -1
+                        """
+                        ModifyWeights(Sb, 0*dv, 0)
+                        modified = True
+                    elif N_out > N_o:
+                        ModifyWeights(Sb, -0*dv, 0)
+                        modified = True
+                        #last = 1
+                    elif N_out == N_o:
+                        done = True
+                        """
+                        if dv > min_dv:
+                            ModifyWeights(Sb, -dv, 1)
+                            modified = True
+                            last = 1
+                        else:
+                        """
 
-        hidden_are_set = True
-        for i in range(len(hidden_neurons)):
-            if len(S_hidden[i]) < N_h:
-                ModifyWeights(Sa[i], dv)
-                hidden_are_set = False
-            elif len(S_hidden[i]) > N_h:
-                ModifyWeights(Sa[i], -dv)
-                hidden_are_set = False
+def Run(T, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None):
 
-        if hidden_are_set == True:
-            if N_out < N_o:
-                ModifyWeights(Sb, dv)
-            elif N_out > N_o:
-                ModifyWeights(Sb, -dv)
-            elif N_out == N_o or i == 100:
-                break
-
-        i += 1
-
-def Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None):
-
-    #hidden_neurons.v = v0
-    #hidden_neurons.u = u0
-    #hidden_neurons.I = 0
-    #output_neurons.v = v0
-    #output_neurons.u = u0
-    #output_neurons.I = 0
-
-    br.forget(Sa, Sb)
+    br.forget(Si, Sl, Sa, Sb)
     br.reinit(states=False)
-    br.recall(Sa, Sb)
+    br.recall(Si, Sl, Sa, Sb)
+
+    print Sa.w[:]
 
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
     input_neurons.set_spiketimes(spikes)
+
+    liquid_out.v = v0
+    liquid_out.u = u0
+    liquid_out.I = 0
+    liquid_out.ge = 0
+
+    liquid_hidden.v = v0
+    liquid_hidden.u = u0
+    liquid_hidden.I = 0
+    liquid_hidden.ge = 0
+
+    liquid_in.v = v0
+    liquid_in.u = u0
+    liquid_in.I = 0
+    liquid_in.ge = 0
+
+    liquid_neurons.v = v0
+    liquid_neurons.u = u0
+    liquid_neurons.I = 0
+    liquid_neurons.ge = 0
+
     hidden_neurons.v = v0
-    output_neurons.v = v0
     hidden_neurons.u = u0
-    output_neurons.u = u0
     hidden_neurons.I = 0
-    output_neurons.I = 0
     hidden_neurons.ge = 0
+
+    output_neurons.v = v0
+    output_neurons.u = u0
+    output_neurons.I = 0
     output_neurons.ge = 0
-    br.run(T*br.msecond,report='text')
+
+    br.run(T*br.msecond)
 
     return label
 
+def PrintSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None):
+    
+        for number in range(4):
+            Run(T, v0, u0, bench, number, input_neurons, liquid_in, \
+                    liquid_hidden, liquid_out, liquid_neurons, \
+                    hidden_neurons, output_neurons, \
+                    Si, Sl, Sa, Sb, M, Mv, Mu, \
+                    S_in, S_hidden, S_out, train=True, letter=None)
+
+            print "Number = ", number
+            print "\t", S_hidden.spiketimes
+            print "\t", S_out.spiketimes
+            print "---------------------------------------------------------------------------------"
+            print "---------------------------------------------------------------------------------"
+
 def Plot(Mv, number):
-    #if number < 2:
     br.plot(211)
-    #pudb.set_trace()
     br.plot(Mv.times/br.ms,Mv[0]/br.mvolt, label=str(number))
     br.legend()
-    #elif number < 4:
-    #    br.subplot(212)
-    #    br.plot(Mv.times/br.ms,Mv[0], label='1')
-    #    br.legend()
-    #print "SAVED!"
-    #br.savefig('plot.png')
     br.show()
 
-#def dT_dW(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_out, train=False, letter=None):
-#
-#    Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_out, train=False, letter=None)    
+def SaveConnectivity(Si, Sl, Sa, Sb, number):
+    Si.save_connectivity("weights/Si-" + str(number) + ".txt")
+    Sl.save_connectivity("weights/Sl-" + str(number) + ".txt")
+    Sa.save_connectivity("weights/Sa-" + str(number) + ".txt")
+    Sb.save_connectivity("weights/Sb-" + str(number) + ".txt")
 
-
+def LoadConnectivity(Si, Sl, Sa, Sb, number):
+    Si.load_connectivity("weights/Si-" + str(number) + ".txt")
+    Sl.load_connectivity("weights/Sl-" + str(number) + ".txt")
+    Sa.load_connectivity("weights/Sa-" + str(number) + ".txt")
+    Sb.load_connectivity("weights/Sb-" + str(number) + ".txt")
 
 """
-def Train(bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_out, train=False, letter=None):
-    br.reinit(states=False)
-    br.run(30*br.msecond,report='text')
+def SetHiddenNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None):
 
-            if len_d > 0 and n == 0:
+    dv = 0.02
+    min_dv = 0.0001
+    i = 0
+    last = 0 # -1, 0, 1: left, neither, right
 
-                    Sa.w[i_a] = weet
-                else:
-                    n_c = len(Sb.w[:])
-                    i_c = br.randint(n_c)
-                    weet = Sb.w[i_c]
-                    weet = weet*br.volt + dv*br.mV
+    for layer in range(2):
+        print "layer = ", layer
+        if layer == 0:
+            dv = 0.02
+            right_dv = True
+        else:
+            dv = 0.02
+            div = 0
+        modified = True
+        j = 0
+        while modified == True:
+            modified = False
+            print "\tj = ", j
+            j += 1
+            for number in range(4):
+                done = False
+                print "\t\tNumber = ", number, "\t"
+                while done == False:
+                    #pudb.set_trace()
+                    Run(T, v0, u0, bench, number, input_neurons, liquid_in, \
+                            liquid_hidden, liquid_out, liquid_neurons, \
+                            hidden_neurons, output_neurons, \
+                            Si, Sl, Sa, Sb, M, Mv, Mu, \
+                            S_in, S_hidden, S_out, train=True, letter=None)
 
-                    Sb.w[i_c] = weet
+                    done = CheckNumSpikes(layer, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+                                    liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+                                    hidden_neurons, output_neurons, \
+                                    Si, Sl, Sa, Sb, M, Mv, Mu, \
+                                    S_in, S_hidden, S_out, train=False, letter=None)
 
-            elif n < 5:
-                index = in_spikes[i]
-                weet = Sb.w[index]
-                if len_l < len_d:
-                    weet = weet*br.volt + dv*br.mV
-                else:
-                    weet = weet*br.volt - dv*br.mV
-                Sb.w[index] = weet
-                i += 1
-            elif n > 4:
-                dv = dv / 2
+                    N_hidden = len(hidden_neurons)
+                    spikes_hidden, spikes_out = CollectSpikes(N_hidden, S_hidden, S_out)
+                    N_out = len(spikes_out)
+
+                    hidden_are_set = True
+                    if layer == 0:
+                        print "\t\t\t\t."
+                        for i in range(len(hidden_neurons)):
+                            if len(S_hidden[i]) < N_h:
+                                ModifyWeights(Sa[i], dv)
+                                modified = True
+                            elif len(S_hidden[i]) > N_h:
+                                ModifyWeights(Sa[i], -dv)
+                                modified = True
+                    else:
+                        print "\t\t\t\tdiv = ", div
+                        if N_out < N_o:
+                            if last == 1:
+                                if dv > min_dv:
+                                    dv = dv / 2
+                                    div += 1
+                            elif last == 0:
+                                last = -1
+                            ModifyWeights(Sb, dv)
+                            modified = True
+                        elif N_out > N_o:
+                            ModifyWeights(Sb, -dv)
+                            modified = True
+                            last = 1
+                        elif N_out == N_o:
+                            if dv > min_dv:
+                                ModifyWeights(Sb, -dv)
+                                modified = True
+                                last = 1
+                            else:
+                                done = True
 """
-        
 

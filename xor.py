@@ -6,6 +6,7 @@ import pudb
 #import winpdb
 import snn 
 import train
+import sys
 
 """
     This script simulates a basic set of feedforward spiking neurons (Izhikevich model).
@@ -17,7 +18,9 @@ import train
         X Test the firing time range of a neuron
         Add multiple layers
         Tweak parameters to make it solve the XOR problem efficiently
-        Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
+        Work this into a script which takes arguments that denote whether it should train the 
+            weights and save them to a text file, or read the weights from a text file and 
+            just run it.
 """
 
 #objects = []
@@ -35,10 +38,11 @@ bench='xor'
 levels=4
 
 N_in = 2
+N_liquid = [3, 3, 14]
 N_hidden = 4
 N_out = 1
 
-Pc = 0.05
+Pc = 0.005
 
 
 '''     0 - Calculates number of filters    '''
@@ -109,14 +113,29 @@ g = 2
 
 spikes = []
 input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
-hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
-output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset)
+liquid_neurons = br.NeuronGroup(N_liquid[-1], model=eqs_hidden_neurons, threshold=vt, \
+        refractory=2*br.ms, reset=reset)
+liquid_in = liquid_neurons.subgroup(N_liquid[0])
+liquid_hidden = liquid_neurons.subgroup(N_liquid[-1] - N_liquid[0] - N_liquid[1])
+liquid_out = liquid_neurons.subgroup(N_liquid[1])
+
+hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, \
+        refractory=2*br.ms, reset=reset)
+output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, \
+        refractory=2*br.ms, reset=reset)
 
 #objects.append(hidden_neurons)
-Sa = br.Synapses(input_neurons, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
+Si = br.Synapses(input_neurons, liquid_in, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
+Sl = br.Synapses(liquid_neurons, liquid_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
+
+Sa = br.Synapses(liquid_out, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
 Sb = br.Synapses(hidden_neurons, output_neurons, model='w:1', pre='ge+=w*(2)')
 
 v0, u0 = -70*br.mV, -14*br.mV/br.msecond
+
+liquid_neurons.v = v0
+liquid_neurons.u = u0
+liquid_neurons.I = 0
 
 hidden_neurons.v = v0
 hidden_neurons.u = u0
@@ -130,19 +149,29 @@ output_neurons.I = 0
 print "v0 = ", v0
 print "u0 = ", u0
 
+Si[:,:]=True
+Sl[:,:]=True
 Sa[:,:]=True
 Sb[:,:]=True
 
-Sa.w[:]='8.04*(0.7+0.2*rand())*br.mV'
-Sb.w[:]='9.0*(0.1+0.2*rand())*br.mV'
+Si.w[:]='6.04*(0.4+0.4*rand())*br.mV'
+Sl.w[:]='6.04*(0.3+0.2*rand())*br.mV'
+Sa.w[:]='2.04*(0.5+0.2*rand())*br.mV'
+Sb.w[:]='0.25*(0.0+0.2*rand())*br.mV'
 
-Sa.delay='(4)*ms'
-Sb.delay='(4)*ms'
+Si.delay='(3*rand())*ms'
+Sl.delay='(3*rand())*ms'
+Sa.delay='(1)*ms'
+Sb.delay='(1)*ms'
 print "n.v0, n.u0 = ", hidden_neurons.v, ", ", hidden_neurons.u
 
 M =br.StateMonitor(output_neurons,'ge',record=0)
 Mv=br.StateMonitor(output_neurons,'v',record=0)
 Mu=br.StateMonitor(output_neurons,'u',record=0)
+
+N =br.StateMonitor(hidden_neurons,'ge',record=0)
+Nv=br.StateMonitor(hidden_neurons,'v',record=0)
+Nu=br.StateMonitor(hidden_neurons,'u',record=0)
 
 S_in = br.SpikeMonitor(input_neurons, record=True)
 S_hidden = br.SpikeMonitor(hidden_neurons, record=True)
@@ -165,24 +194,49 @@ print "======================================================================"
 print "\t\t\tSetting number of spikes"
 print "======================================================================"
 
-for i in range(10):
-    for number in range(3, -1, -1):
-        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
-        print "\tDone! for number = ", number
-    #winpdb.set_trace()
+"""
+while True:
+    snn.Run(2*T, v0, u0, bench, number, input_neurons, liquid_in, \
+            liquid_hidden, liquid_out, liquid_neurons, \
+            hidden_neurons, output_neurons, \
+            Si, Sl, Sa, Sb, M, Mv, Mu, \
+            S_in, S_hidden, S_out, train=True, letter=None)
 
-print "======================================================================"
-print "\t\t\tTraining with ReSuMe"
-print "======================================================================"
+    snn.Plot(Nv, 0)
+"""
+    
+
+snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None)
+
+snn.PrintSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None)
 
 if bench == 'xor':
     desired_times = [-1, -1]
-    extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    mid_times = [-1, -1]
+    extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, \
+            liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+            hidden_neurons, output_neurons, \
+            Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
     diff = extreme_spikes[1] + extreme_spikes[0]
-    diff_r = diff / 10
+    diff_r = diff / 8.0
 
+    #pudb.set_trace()
     extreme_spikes[0] = extreme_spikes[0] + diff_r
-    extreme_spikes[1] = extreme_spikes[1] + diff_r
+    extreme_spikes[1] = extreme_spikes[1] - diff_r
+
+    mid_times[0] = (extreme_spikes[0] + extreme_spikes[1]) / 2.0
+    mid_times[1] = (extreme_spikes[0] + extreme_spikes[1]) / 2.0
+
+    mid_times[0] = mid_times[0]*br.second
+    mid_times[1] = mid_times[1]*br.second
 
     desired_times[0] = extreme_spikes[0]*br.second
     desired_times[1] = extreme_spikes[1]*br.second
@@ -190,9 +244,33 @@ if bench == 'xor':
 else:
     pudb.set_trace()
 
+snn.SetNumSpikes(1, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
+        liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+        hidden_neurons, output_neurons, \
+        Si, Sl, Sa, Sb, M, Mv, Mu, \
+        S_in, S_hidden, S_out, train=False, letter=None)
+
+
 for number in range(4):
     print "\tTRAINING: number = ", number
-    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    #pudb.set_trace()
+    train.ReSuMe(mid_times, Pc, T, N, v0, u0, bench, number, input_neurons, \
+            liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+            hidden_neurons, output_neurons, \
+            Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+
+print "======================================================================"
+print "\t\t\tTraining with ReSuMe"
+print "======================================================================"
+
+for number in range(4):
+    print "\tTRAINING: number = ", number
+    #pudb.set_trace()
+    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, \
+            liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+            hidden_neurons, output_neurons, \
+            Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
+    #pudb.set_trace()
 
 print "======================================================================"
 print "\t\t\tTesting"
@@ -201,8 +279,10 @@ print "======================================================================"
 #pudb.set_trace()
 for number in range(4):
     snn.Run(T, v0, u0, bench, number, \
-            input_neurons, hidden_neurons, output_neurons, \
-            Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+            input_neurons, liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
+            hidden_neurons, output_neurons, \
+            Si, Sl, Sa, Sb, M, Mv, Mu, \
+            S_in, S_hidden, S_out, train=True, letter=None)
 
     if number < 2:
         desired = desired_times[0]
