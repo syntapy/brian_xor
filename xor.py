@@ -1,6 +1,6 @@
 from operator import itemgetter
 import numpy as np
-import brian as br
+import brian2 as br
 import time
 import pudb
 #import winpdb
@@ -29,11 +29,11 @@ N = 1
 vt = -15 * br.mV
 vr = -74 * br.mV
 
-a=0.02
-b=0.2
-c=-65
-d=6
-tau=15
+A=0.02 / 1000
+B=0.2 / 1000
+C=-65.0 / 1000
+D=6.0 / 1000
+TAU=15.0 / 1000
 bench='xor'
 levels=4
 
@@ -81,48 +81,51 @@ elif bench == 'xor':
 
 simtime = 1 #duration of the simulation in s
 number = 1 #number of hidden_neurons
-a = a/br.ms
-b = b/br.ms
-c = c * br.mvolt
-d = d*br.mV/br.ms
-tau = tau*br.ms
+a = A/br.second
+b = B
+c = C*br.volt
+d = D*br.volt
+tau = TAU*br.second
 bench = bench
 
 eqs_hidden_neurons = '''
-    dv/dt = (0.04/ms/mV)*v**2 + (5/ms) * v + 140*mV/ms - u + ge/ms + I/ms : mvolt
-    du/dt = a*((b*v) - u) : mvolt/msecond
-    dge/dt = -ge/tau : mvolt
-    I: mvolt
+    dv/dt = (0.04/ms/mV)*v**2 + (5/ms) * v + 140*mV/ms - u + ge/ms + I/ms : volt
+    du/dt = A*((B*v) - u) : volt/second
+    dge/dt = -ge/tau : volt
+    I: volt
 '''
 
-B = b*br.ms
+v0 = (br.volt*br.sqrt((((5 - B) / 0.08)**2-140) / 0.04) - br.volt*((5 - B) / 0.08)) / 1000.0
+u0 = B*v0
 
-v0 = br.mV*br.sqrt((((5 - B) / 0.08)**2-140) / 0.04) - br.mV*((5 - B) / 0.08)
-u0 = b*v0
-
-reset = '''
-    v = c
-    u += d
-    ge /= 2
+reset_t = '''
+    v = C
+    u += D
+    ge = ge / 2.0
 '''
+
+thresh='v>vt'
 
 img = np.empty(img_dims)
 
 count = 0
 g = 2
 
-spikes = []
-input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)
-liquid_neurons = br.NeuronGroup(N_liquid[-1], model=eqs_hidden_neurons, threshold=vt, \
-        refractory=2*br.ms, reset=reset)
+input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=np.array([]), times=np.array([])*br.ms)
+liquid_neurons = br.NeuronGroup(N=N_liquid[-1], \
+        model=eqs_hidden_neurons, \
+        threshold=thresh, \
+        refractory=2*br.ms, \
+        reset=reset_t)
+pudb.set_trace()
 liquid_in = liquid_neurons.subgroup(N_liquid[0])
 liquid_hidden = liquid_neurons.subgroup(N_liquid[-1] - N_liquid[0] - N_liquid[1])
 liquid_out = liquid_neurons.subgroup(N_liquid[1])
 
 hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, \
-        refractory=2*br.ms, reset=reset)
+        refractory=2*br.ms, reset=reset_t)
 output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, \
-        refractory=2*br.ms, reset=reset)
+        refractory=2*br.ms, reset=reset_t)
 
 #objects.append(hidden_neurons)
 Si = br.Synapses(input_neurons, liquid_in, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)

@@ -4,9 +4,13 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-B	xor.py	/^B = b*br.ms$/;"	v
+A	test_b2.py	/^A = br.SpikeGeneratorGroup(N=2, indices=np.array([0, 1]), times=np.array([0.05, 0.74])*br.ms)$/;"	v
+A	xor.py	/^A=0.02 \/ 1000$/;"	v
+B	xor.py	/^B=0.2 \/ 1000$/;"	v
+C	xor.py	/^C=-65.0 \/ 1000$/;"	v
 CheckNumSpikes	snn.py	/^        S_in, S_hidden, S_out, train=False, letter=None):$/;"	f
 CollectSpikes	snn.py	/^def CollectSpikes(N_hidden, S_hidden, S_out):$/;"	f
+D	xor.py	/^D=6.0 \/ 1000$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
 L	train.py	/^def L(t):$/;"	f
@@ -49,19 +53,16 @@ Si	xor.py	/^Si = br.Synapses(input_neurons, liquid_in, model='w:1', pre='ge+=w')
 Sl	xor.py	/^Sl = br.Synapses(liquid_neurons, liquid_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)$/;"	v
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 T	xor.py	/^T = 20$/;"	v
+TAU	xor.py	/^TAU=15.0 \/ 1000$/;"	v
 TestNodeRange	train.py	/^        Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
-a	xor.py	/^a = a\/br.ms$/;"	v
-a	xor.py	/^a=0.02$/;"	v
-b	xor.py	/^b = b\/br.ms$/;"	v
-b	xor.py	/^b=0.2$/;"	v
+a	xor.py	/^a = A\/br.second$/;"	v
+b	xor.py	/^b = B$/;"	v
 bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
-c	xor.py	/^c = c * br.mvolt$/;"	v
-c	xor.py	/^c=-65$/;"	v
+c	xor.py	/^c = C*br.volt$/;"	v
 count	xor.py	/^count = 0$/;"	v
-d	xor.py	/^d = d*br.mV\/br.ms$/;"	v
-d	xor.py	/^d=6$/;"	v
+d	xor.py	/^d = D*br.volt$/;"	v
 dWa	train.py	/^def dWa(Sa, v_diffs, i_diffs):$/;"	f
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 data_dir	xor.py	/^    data_dir = 'noise\/'$/;"	v
@@ -75,29 +76,28 @@ dir	xor.py	/^    dir = 'li-data\/'$/;"	v
 dir	xor.py	/^    dir = 'minst\/'$/;"	v
 extreme_spikes	xor.py	/^            Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)$/;"	v
 g	xor.py	/^g = 2$/;"	v
-hidden_neurons	xor.py	/^        refractory=2*br.ms, reset=reset)$/;"	v
+hidden_neurons	xor.py	/^        refractory=2*br.ms, reset=reset_t)$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 img_dims	xor.py	/^    img_dims = (n, n)$/;"	v
-input_neurons	xor.py	/^input_neurons = br.SpikeGeneratorGroup(N_in+1, spikes)$/;"	v
+input_neurons	xor.py	/^input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=np.array([]), times=np.array([])*br.ms)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^    levels = levels$/;"	v
 levels	xor.py	/^levels=4$/;"	v
 liquid_hidden	xor.py	/^liquid_hidden = liquid_neurons.subgroup(N_liquid[-1] - N_liquid[0] - N_liquid[1])$/;"	v
 liquid_in	xor.py	/^liquid_in = liquid_neurons.subgroup(N_liquid[0])$/;"	v
-liquid_neurons	xor.py	/^        refractory=2*br.ms, reset=reset)$/;"	v
+liquid_neurons	xor.py	/^        reset=reset_t)$/;"	v
 liquid_out	xor.py	/^liquid_out = liquid_neurons.subgroup(N_liquid[1])$/;"	v
 mid_times	xor.py	/^    mid_times = [-1, -1]$/;"	v
 n	xor.py	/^    n = 3   # Dimension of single image (no pyramid)$/;"	v
 n	xor.py	/^    n = 32  # Dimension of largest image in pyramid$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
 number	xor.py	/^number = 3$/;"	v
-output_neurons	xor.py	/^        refractory=2*br.ms, reset=reset)$/;"	v
+output_neurons	xor.py	/^        refractory=2*br.ms, reset=reset_t)$/;"	v
 simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
-spikes	xor.py	/^spikes = []$/;"	v
-tau	xor.py	/^tau = tau*br.ms$/;"	v
-tau	xor.py	/^tau=15$/;"	v
-u0	xor.py	/^u0 = b*v0$/;"	v
-v0	xor.py	/^v0 = br.mV*br.sqrt((((5 - B) \/ 0.08)**2-140) \/ 0.04) - br.mV*((5 - B) \/ 0.08)$/;"	v
+tau	xor.py	/^tau = TAU*br.second$/;"	v
+thresh	xor.py	/^thresh='v>vt'$/;"	v
+u0	xor.py	/^u0 = B*v0$/;"	v
+v0	xor.py	/^v0 = (br.volt*br.sqrt((((5 - B) \/ 0.08)**2-140) \/ 0.04) - br.volt*((5 - B) \/ 0.08)) \/ 1000.0$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v

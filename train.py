@@ -1,4 +1,4 @@
-import brian as br
+import brian2 as br
 import numpy as np
 import math as ma
 import pudb
