@@ -258,9 +258,11 @@ def Run(T, v0, u0, bench, number, input_neurons, \
         Si, Sl, Sa, Sb, M, Mv, Mu, \
         S_in, S_hidden, S_out, train=False, letter=None):
 
-    br.forget(Si, Sl, Sa, Sb)
-    br.reinit(states=False)
-    br.recall(Si, Sl, Sa, Sb)
+    pudb.set_trace()
+    br.restore()
+    #br.forget(Si, Sl, Sa, Sb)
+    #br.reinit(states=False)
+    #br.recall(Si, Sl, Sa, Sb)
 
     print Sa.w[:]
 

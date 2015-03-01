@@ -112,27 +112,26 @@ count = 0
 g = 2
 
 input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=np.array([]), times=np.array([])*br.ms)
-liquid_neurons = br.NeuronGroup(N=N_liquid[-1], \
-        model=eqs_hidden_neurons, \
-        threshold=thresh, \
-        refractory=2*br.ms, \
-        reset=reset_t)
-pudb.set_trace()
-liquid_in = liquid_neurons.subgroup(N_liquid[0])
-liquid_hidden = liquid_neurons.subgroup(N_liquid[-1] - N_liquid[0] - N_liquid[1])
-liquid_out = liquid_neurons.subgroup(N_liquid[1])
-
-hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=vt, \
+liquid_neurons = br.NeuronGroup(N=N_liquid[-1], model=eqs_hidden_neurons, threshold=thresh, \
         refractory=2*br.ms, reset=reset_t)
-output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=vt, \
+#pudb.set_trace()
+liquid_in = br.Subgroup(liquid_neurons, 0, N_liquid[0])
+liquid_hidden = br.Subgroup(liquid_neurons, N_liquid[0], N_liquid[-1] - N_liquid[1])
+liquid_out = br.Subgroup(liquid_neurons, N_liquid[-1] - N_liquid[1], N_liquid[-1])
+
+hidden_neurons = br.NeuronGroup(N_hidden, model=eqs_hidden_neurons, threshold=thresh, \
+        refractory=2*br.ms, reset=reset_t)
+output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons, threshold=thresh, \
         refractory=2*br.ms, reset=reset_t)
 
 #objects.append(hidden_neurons)
-Si = br.Synapses(input_neurons, liquid_in, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
-Sl = br.Synapses(liquid_neurons, liquid_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
+synapse_model = 'w:1'
+synapse_pre = 'ge+=1'
+Si = br.Synapses(input_neurons, liquid_in, model=synapse_model, pre=synapse_pre)#, max_delay=9*br.ms)
+Sl = br.Synapses(liquid_neurons, liquid_neurons, model=synapse_model, pre=synapse_pre)#, max_delay=9*br.ms)
 
-Sa = br.Synapses(liquid_out, hidden_neurons, model='w:1', pre='ge+=w')#, max_delay=9*br.ms)
-Sb = br.Synapses(hidden_neurons, output_neurons, model='w:1', pre='ge+=w*(2)')
+Sa = br.Synapses(liquid_out, hidden_neurons, model=synapse_model, pre=synapse_pre)#, max_delay=9*br.ms)
+Sb = br.Synapses(hidden_neurons, output_neurons, model=synapse_model, pre=synapse_pre)
 
 v0, u0 = -70*br.mV, -14*br.mV/br.msecond
 
@@ -148,19 +147,19 @@ output_neurons.v = v0
 output_neurons.u = u0
 output_neurons.I = 0
 
-
 print "v0 = ", v0
 print "u0 = ", u0
 
-Si[:,:]=True
-Sl[:,:]=True
-Sa[:,:]=True
-Sb[:,:]=True
+Si.connect(True)
+Sl.connect(True)
+Sa.connect(True)
+Sb.connect(True)
 
-Si.w[:]='6.04*(0.4+0.4*rand())*br.mV'
-Sl.w[:]='6.04*(0.3+0.2*rand())*br.mV'
-Sa.w[:]='2.04*(0.5+0.2*rand())*br.mV'
-Sb.w[:]='0.25*(0.0+0.2*rand())*br.mV'
+pudb.set_trace()
+Si.w[:, :]='6.04*(0.4+0.4*rand())*0.001'
+Sl.w[:]='6.04*(0.3+0.2*rand())*0.001'
+Sa.w[:]='2.04*(0.5+0.2*rand())*0.001'
+Sb.w[:]='0.25*(0.0+0.2*rand())*0.001'
 
 Si.delay='(3*rand())*ms'
 Sl.delay='(3*rand())*ms'
@@ -207,8 +206,8 @@ while True:
 
     snn.Plot(Nv, 0)
 """
-    
 
+#pudb.set_trace()
 snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, bench, number, input_neurons, \
         liquid_in, liquid_hidden, liquid_out, liquid_neurons, \
         hidden_neurons, output_neurons, \
