@@ -235,32 +235,39 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
 
         k += 1
 
+def MagicSingleObject(object_group):
+    net = br.Network()
+
+    for i in range(len(object_group)):
+        if type(object_group[i]) == list:
+            for j in range(len(object_group[i])):
+                net.add(object_group[i][j])
+        else:
+            net.add(object_group[i])
+
+
+    return net
+
+def RegisterAllObjects(neuron_groups, synapse_groups, output_monitor, spike_monitors):
+    
+    pudb.set_trace()
+    net = br.Network()
+    net.add(MagicSingleObject(synapse_groups).groups)
+    net.add(MagicSingleObject(neuron_groups).groups)
+    net.add(MagicSingleObject(output_monitor).groups)
+    net.add(MagicSingleObject(spike_monitors).groups)
+
+    return net
+
 def Run(T, v0, u0, I0, ge0, bench, number, \
     neuron_groups, synapse_groups, output_monitor, spike_monitors, \
     train=False, letter=None):
 
-    for i in range(len(neuron_groups)):
-        if type(neuron_groups[i]) == list:
-            for j in range(len(neuron_groups[i])):
-                br.recall(neuron_groups[i][j])
-        else:
-            br.recall(neuron_groups[i])
-
-    for i in range(len(synapse_groups)):
-        if type(synapse_groups[i]) == list:
-            for j in range(len(synapse_groups[i])):
-                br.forget(synapse_groups[i][j])
-        else:
-            br.forget(synapse_groups[i])
+    net = RegisterAllObjects(neuron_groups, synapse_groups, output_monitor, spike_monitors)
+    MagicSingleObject(synapse_groups, br.forget)
 
     br.reinit(states=False)
-
-    for i in range(len(synapse_groups)):
-        if type(synapse_groups[i]) == list:
-            for j in range(len(synapse_groups[i])):
-                br.recall(synapse_groups[i][j])
-        else:
-            br.recall(synapse_groups[i])
+    MagicSingleObject(synapse_groups, br.recall)
 
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
@@ -270,11 +277,14 @@ def Run(T, v0, u0, I0, ge0, bench, number, \
         neuron_groups[0].set_spiketimes([])
 
     init.NeuronInitConditions(neuron_groups, v0, u0, I0, ge0)
+    net = br.MagicNetwork()
     br.run(T*br.msecond,report='text')
+
+    Plot(output_monitor)
 
     return label
 
-def Plot(monitor, number):
+def Plot(monitor):
     br.plot(211)
     br.plot((monitor[0].times)/br.ms,2000*(monitor[0][0]/br.mvolt) - 58000, label='v')
     br.plot(monitor[1].times/br.ms,monitor[1][0]/br.mvolt, label='u')
