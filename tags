@@ -14,7 +14,7 @@ CollectSpikes	snn.py	/^def CollectSpikes(spike_monitors):$/;"	f
 D	xor.py	/^D=6.0$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
-I0	xor.py	/^I0 = 0*br.mV$/;"	v
+I0	xor.py	/^I0 = 0*br.volt \/ br.second$/;"	v
 InitConditions	initial.py	/^def InitConditions(single_neuron_group, v0, u0, I0, ge0):$/;"	f
 L	train.py	/^def L(t):$/;"	f
 MagicSingleObject	snn.py	/^def MagicSingleObject(object_group):$/;"	f
@@ -54,16 +54,16 @@ SynapseIndices	initial.py	/^def SynapseIndices():$/;"	f
 T	xor.py	/^T = 40$/;"	v
 TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, neuron_groups, synapse_groups, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
-a	xor.py	/^a = A*br.msecond$/;"	v
+a	xor.py	/^a = A$/;"	v
 b	xor.py	/^b = B$/;"	v
 bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
-c	xor.py	/^c = C*br.mvolt$/;"	v
+c	xor.py	/^c = C*br.mV$/;"	v
 count	xor.py	/^count = 0$/;"	v
 d	xor.py	/^d = D*br.mV\/br.ms$/;"	v
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
 g	xor.py	/^g = 2$/;"	v
-ge0	xor.py	/^ge0 = 0*br.mV$/;"	v
+ge0	xor.py	/^ge0 = 0*br.volt \/ br.second$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
@@ -81,8 +81,8 @@ spike_monitors	xor.py	/^spike_monitors = init.AllSpikeMonitors(neuron_groups)$/;
 synapse_groups	xor.py	/^synapse_groups = init.SetSynapses(net)$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
 tau	xor.py	/^tau=15.0$/;"	v
-u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$/;"	v
-v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2)) * br.mV$/;"	v
+u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2))*br.volt$/;"	v
+v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2))*br.volt$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v
 weight_file	xor.py	/^weight_file = "weights.txt"$/;"	v

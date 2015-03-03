@@ -86,9 +86,9 @@ if bench == 'xor':
 
 simtime = 1 #duration of the simulation in s
 number = 1 #number of hidden_neurons
-a = A*br.msecond
+a = A
 b = B
-c = C*br.mvolt
+c = C*br.mV
 d = D*br.mV/br.ms
 tau = tau*br.ms
 bench = bench
@@ -96,10 +96,9 @@ bench = bench
 parameters = [a, b, c, d, tau]
 
 eqs_hidden_neurons = '''
-    dv/dt = (0.04/ms/mV)*v**2 + (5/ms) * v + 140*mV/ms - u + ge/ms + I/ms : mvolt
-    du/dt = a*((b*v) - u) : mvolt / second
-    dge/dt = -ge/tau : mvolt
-    I: mvolt
+    dv/dt=(0.04/ms/mV)*v**2+(5/ms)*v+140*mV/ms-u+ge/ms  : volt
+    du/dt=A*(B*v-u)                                     : volt/second
+    dge/dt=-ge/tau                                      : volt/second
 '''
 
 """     USING MATHEMATICA
@@ -113,13 +112,11 @@ reset = '''
     u += d
 '''
 
-#B = b*br.ms
-
 #pudb.set_trace()
-u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV
-v0 = (25*(-5 + A**2 * B**2)) * br.mV
-I0 = 0*br.mV
-ge0 = 0*br.mV
+u0 = (25*(-5*A*B + A**2 * B**2))*br.volt
+v0 = (25*(-5 + A**2 * B**2))*br.volt
+I0 = 0*br.volt / br.second
+ge0 = 0*br.volt / br.second
 
 img = np.empty(img_dims)
 
@@ -264,3 +261,14 @@ for number in range(4):
 
     print "Number, Desired, Actual = ", number, ", ", desired, ", ", S_out.spiketimes[0]
 """
+
+
+
+
+"""
+
+    dv/dt = ((0.04*v**2/mV) + 5*v + 140*(mV) - u + ge) / msecond: volt
+    du/dt = A*((B*v) - u) : volt
+    dge/dt = -ge/tau : volt
+"""
+

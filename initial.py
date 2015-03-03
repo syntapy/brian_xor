@@ -30,7 +30,9 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, parameters, eqs_hidden_
 
     pudb.set_trace()
     liquid_neurons = br.NeuronGroup(N_liquid[0], model=eqs_hidden_neurons, \
-        threshold=vt, refractory=2*br.ms, reset=reset)
+        threshold=vt, \
+        refractory=2*br.ms, \
+        reset=reset)
 
     liquid_in = br.Subgroup(liquid_neurons, 0, N_liquid[0])
     liquid_hidden = br.Subgroup(liquid_neurons, N_liquid[0], N_liquid[-1] - N_liquid[1])
