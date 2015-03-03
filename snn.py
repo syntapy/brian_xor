@@ -235,33 +235,11 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
 
         k += 1
 
-def Run(T, v0, u0, I0, ge0, bench, number, \
+def Run(T, net, v0, u0, I0, ge0, bench, number, \
     neuron_groups, synapse_groups, output_monitor, spike_monitors, \
     train=False, letter=None):
 
-    for i in range(len(neuron_groups)):
-        if type(neuron_groups[i]) == list:
-            for j in range(len(neuron_groups[i])):
-                br.recall(neuron_groups[i][j])
-        else:
-            br.recall(neuron_groups[i])
-
-    for i in range(len(synapse_groups)):
-        if type(synapse_groups[i]) == list:
-            for j in range(len(synapse_groups[i])):
-                br.forget(synapse_groups[i][j])
-        else:
-            br.forget(synapse_groups[i])
-
-    br.reinit(states=False)
-
-    for i in range(len(synapse_groups)):
-        if type(synapse_groups[i]) == list:
-            for j in range(len(synapse_groups[i])):
-                br.recall(synapse_groups[i][j])
-        else:
-            br.recall(synapse_groups[i])
-
+    net.restore()
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
     if number >= 0 and number < 4:

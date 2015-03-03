@@ -159,6 +159,7 @@ def SpikeMonitor(neuron_groups, index_str):
 def AllSpikeMonitors(neuron_groups):
     #pudb.set_trace()
     N = len(neuron_groups)
+
     spike_monitors = []
     spike_monitors.append(SpikeMonitor(neuron_groups, 'input'))
     spike_monitors.append(SpikeMonitor(neuron_groups, 'liquid'))
@@ -170,3 +171,24 @@ def AllSpikeMonitors(neuron_groups):
     spike_monitors.append(SpikeMonitor(neuron_groups[3], 'out'))
 
     return spike_monitors
+
+def _network(net, group):
+    N_groups = len(group)
+
+    for i in range(N_groups):
+        if type(group[i]) == list:
+            N - len(group[i])
+            for j in range(N):
+                net.add(group[i][j])
+        else:
+            net.add(group[i])
+
+def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors):
+    net = br.Network()
+
+    _network(net, neuron_groups)
+    _network(net, synapse_groups)
+    _network(net, output_monitor)
+    _network(net, spike_monitors)
+
+    return net

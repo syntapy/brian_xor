@@ -132,15 +132,17 @@ N_o = 1
 # DEFINE OBJECTS
 # pudb.set_trace()
 neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, \
-    parameters, eqs_hidden_neurons, reset)
+        parameters, eqs_hidden_neurons, reset)
 synapse_groups = init.SetSynapses(neuron_groups)
 output_monitor = init.StateMonitors(neuron_groups, 'out')
 spike_monitors = init.AllSpikeMonitors(neuron_groups)
+net = init.AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors)
 
-snn.Run(T, v0, u0, I0, ge0, bench, 0,\
-    neuron_groups, synapse_groups, output_monitor, spike_monitors)
+snn.Run(T, net, v0, u0, I0, ge0, bench, 0,\
+        neuron_groups, synapse_groups, output_monitor, spike_monitors)
 
-snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, neuron_groups, synapse_groups, output_monitor, spike_monitors)
+snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
+        neuron_groups, synapse_groups, output_monitor, spike_monitors)
 
 # LIQUID STATE MACHINE
 
