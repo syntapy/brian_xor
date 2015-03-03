@@ -41,7 +41,7 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_liquid = [3, 3, 14] # Total, liquid in, liquid out
+N_liquid = [3, 3, 14] # liquid in, liquid out, total
 #CP_liquid = 0.7
 N_hidden = [5]
 N_out = 1
@@ -96,13 +96,13 @@ bench = bench
 parameters = [a, b, c, d, tau]
 
 eqs_hidden_neurons = '''
-    dv/dt=(0.04/ms/mV)*v**2+(5/ms)*v+140*mV/ms-u+ge/ms  : volt
-    du/dt=A*(B*v-u)                                     : volt/second
-    dge/dt=-ge/tau                                      : volt/second
+    dv/dt=(0.04/ms/mV)*v**2+(5/ms)*v+140*mV/ms-u+ge/ms+I : volt
+    du/dt=A*(B*v-u)                                      : volt/second
+    dge/dt=-ge/tau                                       : volt/second
+    I                                                    : volt/second
 '''
 
 """     USING MATHEMATICA
-
     u = 25. (-5 a b + A B)
     v = 25. (-5. + a b)
 """
@@ -113,8 +113,8 @@ reset = '''
 '''
 
 #pudb.set_trace()
-u0 = (25*(-5*A*B + A**2 * B**2))*br.volt
-v0 = (25*(-5 + A**2 * B**2))*br.volt
+u0 = (25*(-5*A*B + A**2 * B**2))*br.mV
+v0 = (25*(-5 + A**2 * B**2))*br.mV
 I0 = 0*br.volt / br.second
 ge0 = 0*br.volt / br.second
 
@@ -127,12 +127,12 @@ T = 40
 N_h = 1
 N_o = 1
 # DEFINE OBJECTS
-#pudb.set_trace()
-net = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, \
+neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, \
     parameters, eqs_hidden_neurons, reset)
-synapse_groups = init.SetSynapses(net)
-output_monitor = init.StateMonitors(neuron_groups, 'out')
-liquid_monitor = init.StateMonitors(neuron_groups, 'liquid_in')
+pudb.set_trace()
+synapses = init.SetSynapses(neuron_groups)
+out_monitor = init.StateMonitors(neuron_groups, 'out')
+liquid_in_monitors = init.StateMonitors(neuron_groups, 'liquid_in')
 
 spike_monitors = init.AllSpikeMonitors(neuron_groups)
 

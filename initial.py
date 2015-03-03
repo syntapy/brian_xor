@@ -2,13 +2,15 @@ import brian2 as br
 import numpy as np
 import pudb
 
-def NeuronIndices():
-    """Nin, Nli, Nlh, Nlo, Nliq, Nhid, Nout"""
-    return 0, 1, 2, 3, 4, 5, 6
+def NeuronIndices(N_hidden):
+    """
+        Nin, Nli, Nlh, Nlo, N_liq, Nhid, Nout
+    """
+    return 0, 1, 2, 3, 4, 5, 5+N_hidden
 
-def SynapseIndices():
+def SynapseIndices(N_hidden):
     """Si, Sl, Sa, Sb"""
-    return 7, 8, 9, 10
+    return 0, 1, 2, 3+N_hidden
 
 def OutputMonitorIndex():
     return 11
@@ -18,9 +20,9 @@ def SpikeMonitorIndices():
 
 def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, parameters, eqs_hidden_neurons, reset):
 
-    a = np.array([0])
-    b = np.array([0])*br.msecond
-    input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=a, times=b)
+    x = np.array([0])
+    y = np.array([0])*br.msecond
+    input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=x, times=y)
 
     a = parameters[0]
     b = parameters[1]
@@ -28,9 +30,9 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, parameters, eqs_hidden_
     d = parameters[3]
     tau = parameters[4]
 
-    pudb.set_trace()
+    #pudb.set_trace()
     liquid_neurons = br.NeuronGroup(N_liquid[0], model=eqs_hidden_neurons, \
-        threshold=vt, \
+        threshold='v>vt', \
         refractory=2*br.ms, \
         reset=reset)
 
@@ -41,21 +43,21 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, parameters, eqs_hidden_
     hidden_neurons = []
     for i in range(len(N_hidden)):
         hidden_neurons.append(br.NeuronGroup(N_hidden[i], \
-            model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset))
+            model=eqs_hidden_neurons, threshold='v>vt', refractory=2*br.ms, reset=reset))
 
     output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons,\
-        threshold=vt, refractory=2*br.ms, reset=reset)
+        threshold='v>vt', refractory=2*br.ms, reset=reset)
 
-    net = br.Network()
-    net.add(input_neurons, \
-        liquid_neurons_in, \
-        iquid_neurons_hidden, \
-        liquid_neurons_out, \
-        liquid_neurons, \
+    objects = [input_neurons, \
+        [liquid_in, \
+        liquid_hidden, \
+        liquid_out, \
+        liquid_neurons], \
         hidden_neurons, \
-        output_neurons)
+        output_neurons]
 
-    return net
+    #net = br.Network()
+    return objects 
 
 def InitConditions(single_neuron_group, v0, u0, I0, ge0):
     single_neuron_group.v = v0
@@ -111,14 +113,14 @@ def SetSynapses(neuron_groups):
 
     N_hidden_layers = len(neuron_groups[2])
     Nin, Nli, Nlh, Nlo, Nliq, Nhid, Nout = NeuronIndices()
-    Si = br.Synapses(net._added_groups[Nin], net._added_groups[Nli], model='w:1', pre='ge+=w')
-    Sl = br.Synapses(net._added_groups[Nliq], net._added_groups[Nliq], model='w:1', pre='ge+=w')
+    Si = br.Synapses(neuron_groups[Nin], neuron_groups[Nli], model='w:1', pre='ge+=w')
+    Sl = br.Synapses(neuron_groups[Nliq], neuron_groups[Nliq], model='w:1', pre='ge+=w')
 
     Sa = []
-    Sa.append(br.Synapses(net._added_groups[Nlo], net._added_groups[Nhid], model='w:1', pre='ge+=w'))
+    Sa.append(br.Synapses(neuron_groups[Nlo], neuron_groups[Nhid], model='w:1', pre='ge+=w'))
     for i in range(N_hidden_layers - 1):
-        Sa.append(br.Synapses(neuron_groups[2][i], neuron_groups[2][i+1], model='w:1', pre='ge+=w'))
-    Sb = br.Synapses(neuron_groups[2][-1], neuron_groups[-1], model='w:1', pre='ge+=w')
+        Sa.append(br.Synapses(neuron_groups[Nhid+i], neuron_groups[Nhid+i+1], model='w:1', pre='ge+=w'))
+    Sb = br.Synapses(neuron_groups[Nhid+1], neuron_groups[Nout], model='w:1', pre='ge+=w')
 
     synapse_groups = [Si, Sl, Sa, Sb]
     SetSynapseInitialWeights(synapse_groups)
