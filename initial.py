@@ -1,31 +1,66 @@
-import brian as br
+import brian2 as br
+import numpy as np
 import pudb
 
-def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, parameters, eqs_hidden_neurons, reset):
-    input_neurons = br.SpikeGeneratorGroup(N_in+1, [])
+def NeuronIndices(N_hidden):
+    """
+        Nin, Nli, Nlh, Nlo, N_liq, Nhid, Nout
+    """
+    return 0, 1, 2, 3, 4, 5, 5+N_hidden
+
+def SynapseIndices(N_hidden):
+    """Si, Sl, Sa, Sb"""
+    return 0, 1, 2, 3+N_hidden
+
+def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, eqs_hidden_neurons, reset):
+
+    #pudb.set_trace()
+    #x = np.array([0, 1, 2])
+    #y = np.array([0, 2, 1])*br.msecond
+    #input_neurons = br.SpikeGeneratorGroup(N=N_in+1, indices=x, times=y)
+    input_neurons = br.NeuronGroup(3, '''dv/dt = vt/period : volt (unless refractory)
+                                        period: second
+                                        fire_once: boolean ''', \
+                                    threshold='v>vt', reset='v=0*volt',
+                                    refractory='fire_once')
 
     a = parameters[0]
     b = parameters[1]
     c = parameters[2]
     d = parameters[3]
     tau = parameters[4]
+    vt = parameters[5]
 
-    liquid_neurons = br.NeuronGroup(N_liquid[0], model=eqs_hidden_neurons, \
-        threshold=vt, refractory=2*br.ms, reset=reset)
-    liquid_neurons_in = liquid_neurons.subgroup(N_liquid[1])
-    liquid_neurons_hidden = liquid_neurons.subgroup(N_liquid[0] - N_liquid[1] - N_liquid[2])
-    liquid_neurons_out = liquid_neurons.subgroup(N_liquid[2])
+    liquid_neurons = br.NeuronGroup(N_liquid[-1], model=eqs_hidden_neurons, \
+        threshold='v>vt', \
+        refractory=2*br.ms, \
+        reset=reset)
+
+    liquid_in = br.Subgroup(liquid_neurons, 0, N_liquid[0])
+    liquid_hidden = br.Subgroup(liquid_neurons, N_liquid[0], N_liquid[-1] - N_liquid[1])
+    liquid_out = br.Subgroup(liquid_neurons, N_liquid[-1] - N_liquid[1], N_liquid[-1])
+
+    #liquid_in.indices = np.arange(0, N_liquid[0])
+    #liquid_hidden.indices = np.arange(N_liquid[0], N_liquid[-1] - N_liquid[1])
+    #liquid_out.indices = np.arange(N_liquid[-1] - N_liquid[1], N_liquid[-1])
+
+    liquid_in.v = 0*br.mV
+    liquid_hidden.v = 0*br.mV
+    liquid_out.v = 0*br.mV
 
     hidden_neurons = []
     for i in range(len(N_hidden)):
         hidden_neurons.append(br.NeuronGroup(N_hidden[i], \
-            model=eqs_hidden_neurons, threshold=vt, refractory=2*br.ms, reset=reset))
+            model=eqs_hidden_neurons, threshold='v>vt', refractory=2*br.ms, reset=reset))
 
     output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons,\
-        threshold=vt, refractory=2*br.ms, reset=reset)
+        threshold='v>vt', refractory=2*br.ms, reset=reset)
 
     neuron_groups = [input_neurons, \
-        [liquid_neurons_in, liquid_neurons_hidden, liquid_neurons_out, liquid_neurons], \
+        [liquid_in, \
+        liquid_hidden, \
+        liquid_out, \
+        liquid_neurons], \
         hidden_neurons, \
         output_neurons]
 
@@ -50,48 +85,36 @@ def NeuronInitConditions(neuron_groups, v0, u0, I0, ge0):
 
 def SetSynapseInitialWeights(synapse_groups):
 
-    synapse_groups[0][:,:]=True
-    synapse_groups[0].w[:]='8.04*(0.3+0.8*rand())*br.mV'
-    synapse_groups[0].delay='(4)*ms'
+    #pudb.set_trace()
+    synapse_groups[0].connect(True)
+    synapse_groups[0].w[:]='8.04*(0.3+0.8*rand())'
+    synapse_groups[0].delay='(1)*ms'
 
-    synapse_groups[1][:,:]=True
-    synapse_groups[1].w[:,:]='8.0*rand()*br.mV'
+    synapse_groups[1].connect(True)
+    synapse_groups[1].w[:,:]='8.0*rand()'
     synapse_groups[1].delay='3*rand()*ms'
 
     for i in range(len(synapse_groups[2])):
-        synapse_groups[2][i][:,:]=True
-        synapse_groups[2][i].w[:]='8.04*(0.3+0.8*rand())*br.mV'
-        synapse_groups[2][i].delay='(4)*ms'
+        synapse_groups[2][i].connect(True)
+        synapse_groups[2][i].w[:, :]='8.04*(0.3+0.8*rand())'
+        synapse_groups[2][i].delay='(1)*ms'
 
-    synapse_groups[-1][:,:]=True
-    synapse_groups[-1].w[:]='9.0*(0.1+0.2*rand())*br.mV'
-    synapse_groups[-1].delay='(4)*ms'
-
-    """
-    all_files_present = True
-    for i in range(len(synapse_groups)):
-        file_name = "weights/" + str(i) + ".txt"
-        if not op.isfile(file_name):
-            all_files_present = False
-            break
-
-    if all_files_present:
-        file_name = "weights/" + array_file[0] + ".txt"
-        Si.load_connectivity(file_name)
-        file_name
-    """
+    synapse_groups[-1].connect(True)
+    synapse_groups[-1].w[:, :]='9.0*(0.1+0.2*rand())'
+    synapse_groups[-1].delay='(1)*ms'
 
 def SetSynapses(neuron_groups):
 
     N_hidden_layers = len(neuron_groups[2])
-    Si = br.Synapses(neuron_groups[0], neuron_groups[2][0], model='w:1', pre='ge+=w')
-    Sl = br.Synapses(neuron_groups[1][-1], neuron_groups[1][-1], model='w:1', pre='ge+=w')
+    #pudb.set_trace()
+    Si = br.Synapses(neuron_groups[0], neuron_groups[1][0], model='w:1', pre='ge+=w*mV')
+    Sl = br.Synapses(neuron_groups[1][-1], neuron_groups[1][-1], model='w:1', pre='ge+=w*mV')
 
     Sa = []
-    Sa.append(br.Synapses(neuron_groups[1][2], neuron_groups[2][0], model='w:1', pre='ge+=w'))
+    Sa.append(br.Synapses(neuron_groups[1][2], neuron_groups[2][0], model='w:1', pre='ge+=w*mV'))
     for i in range(N_hidden_layers - 1):
-        Sa.append(br.Synapses(neuron_groups[2][i], neuron_groups[2][i+1], model='w:1', pre='ge+=w'))
-    Sb = br.Synapses(neuron_groups[2][-1], neuron_groups[-1], model='w:1', pre='ge+=w')
+        Sa.append(br.Synapses(neuron_groups[2][i], neuron_groups[2][i+1], model='w:1', pre='ge+=w*mV'))
+    Sb = br.Synapses(neuron_groups[2][-1], neuron_groups[3], model='w:1', pre='ge+=w*mV')
 
     synapse_groups = [Si, Sl, Sa, Sb]
     SetSynapseInitialWeights(synapse_groups)
@@ -148,27 +171,25 @@ def SpikeMonitor(neuron_groups, index_str):
     index_a, index_b, index_aux = NeuronGroupIndex(index_str)
 
     if index_b == None and index_aux == None:
-        S = br.SpikeMonitor(neuron_groups[index_a], record=True)
+        S = br.SpikeMonitor(neuron_groups[index_a], record=0)
     elif index_a == 2:
-        S = br.SpikeMonitor(neuron_groups[index_a][index_aux], record=True)
+        S = br.SpikeMonitor(neuron_groups[index_a][index_aux], record=0)
     elif index_b != None:
-        S = br.SpikeMonitor(neuron_groups[index_a][index_b], record=True)
+        S = br.SpikeMonitor(neuron_groups[index_a][index_b], record=0)
 
     return S
 
 def AllSpikeMonitors(neuron_groups):
-    #pudb.set_trace()
     N = len(neuron_groups)
 
     spike_monitors = []
-    spike_monitors.append(SpikeMonitor(neuron_groups, 'input'))
-    spike_monitors.append(SpikeMonitor(neuron_groups, 'liquid'))
+
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[0], record=0))
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[1][-1], record=0))
     spike_monitors.append([])
     for i in range(len(neuron_groups[2])):
-        spike_monitors[2].append([])
-        for j in range(len(neuron_groups[2][i])):
-            spike_monitors[2][i].append(SpikeMonitor(neuron_groups[2][i], 'hidden'))
-    spike_monitors.append(SpikeMonitor(neuron_groups[3], 'out'))
+        spike_monitors[2].append(br.SpikeMonitor(neuron_groups[2][i], record=0))
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[3], record=0))
 
     return spike_monitors
 
@@ -177,18 +198,27 @@ def _network(net, group):
 
     for i in range(N_groups):
         if type(group[i]) == list:
-            N - len(group[i])
+            N = len(group[i])
             for j in range(N):
                 net.add(group[i][j])
         else:
             net.add(group[i])
 
-def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors):
+    return net
+
+def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters):
+    a = parameters[0]
+    b = parameters[1]
+    c = parameters[2]
+    d = parameters[3]
+    tau = parameters[4]
+    vt = parameters[5]
+
     net = br.Network()
 
-    _network(net, neuron_groups)
-    _network(net, synapse_groups)
-    _network(net, output_monitor)
-    _network(net, spike_monitors)
+    net = _network(net, neuron_groups)
+    net = _network(net, synapse_groups)
+    net = _network(net, output_monitor)
+    net = _network(net, spike_monitors)
 
     return net

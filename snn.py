@@ -1,6 +1,6 @@
 import initial as init
 import numpy as np
-import brian as br
+import brian2 as br
 import pudb
 
 def make2dList(rows, cols):
@@ -93,7 +93,7 @@ def GetInSpikes(img, bench='LI'):
         img_dims = np.shape(img)
         if bench == 'LI' or bench == 'xor':
 
-            spikes = []
+            spikes = [-1, -1, -1]
             h = 0
             x_range = range(img_dims[0])
             y_range = range(img_dims[1])
@@ -102,11 +102,12 @@ def GetInSpikes(img, bench='LI'):
                 for j in y_range:
                     pixel = img[i][j]
                     if pixel == 0:
-                        spikes.append((h, 6*br.ms))
+                        spikes[h] = 6
                     else:
-                        spikes.append((h, 0*br.ms))
+                        spikes[h] = 0
                     h += 1
-            spikes.append((h, 0*br.ms))
+
+            spikes[h] = 0
 
             return spikes
 
@@ -237,26 +238,37 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
 
 def Run(T, net, v0, u0, I0, ge0, bench, number, \
     neuron_groups, synapse_groups, output_monitor, spike_monitors, \
-    train=False, letter=None):
+    parameters, train=False, letter=None):
+
+    a = parameters[0]
+    b = parameters[1]
+    c = parameters[2]
+    d = parameters[3]
+    tau = parameters[4]
+    vt = parameters[5]
 
     net.restore()
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
-    if number >= 0 and number < 4:
-        neuron_groups[0].set_spiketimes(spikes)
-    else:
-        neuron_groups[0].set_spiketimes([])
+    neuron_groups[0].period = spikes * br.ms
+    neuron_groups[0].fire_once = [True, True, True]
+    neuron_groups[0].v = 0
+    #if number >= 0 and number < 4:
+    #    neuron_groups[0].set_spiketimes(spikes)
+    #else:
+    #    neuron_groups[0].set_spiketimes([])
 
-    init.NeuronInitConditions(neuron_groups, v0, u0, I0, ge0)
-    br.run(T*br.msecond,report='text')
+    init.NeuronInitConditions(neuron_groups[1:], v0, u0, I0, ge0)
+    #pudb.set_trace()
+    net.run(T*br.msecond,report='text')
 
     return label
 
 def Plot(monitor, number):
     br.plot(211)
-    br.plot((monitor[0].times)/br.ms,2000*(monitor[0][0]/br.mvolt) - 58000, label='v')
-    br.plot(monitor[1].times/br.ms,monitor[1][0]/br.mvolt, label='u')
-    br.plot((monitor[2].times)/br.ms,2000*(monitor[2][0]/br.mvolt) - 58000, label='ge')
+    br.plot(monitor[0].t/br.ms,monitor[0].v/br.mV, label='v')
+    #br.plot(monitor[1].t/br.ms,monitor[1][0]/br.mV, label='u')
+    #br.plot((monitor[2].t)/br.ms,(monitor[2][0]/br.mV), label='ge')
     br.legend()
     br.show()
 

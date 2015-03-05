@@ -1,7 +1,7 @@
 from operator import itemgetter
 import os.path as op
 import numpy as np
-import brian as br
+import brian2 as br
 import time
 import pudb
 import snn 
@@ -34,14 +34,14 @@ vr = -74 * br.mV
 
 A=0.02
 B=0.2
-C=-65
-D=6
-tau=5
+C=-65.0
+D=6.0
+tau=5.0
 bench='xor'
 levels=4
 
 N_in = 2
-N_liquid = [14, 3, 3] # Total, liquid in, liquid out
+N_liquid = [3, 3, 14] # Total, liquid in, liquid out
 #CP_liquid = 0.7
 N_hidden = [5]
 N_out = 1
@@ -86,24 +86,26 @@ if bench == 'xor':
 
 simtime = 1 #duration of the simulation in s
 number = 1 #number of hidden_neurons
-a = A/br.ms
-b = B/br.ms
-c = C*br.mvolt
+a = A / br.ms
+b = B
+c = C*br.mV
 d = D*br.mV/br.ms
+#vtest = -40 * br.mV
+#utest = - 0 * br.mV / br.ms
+#pudb.set_trace()
 tau = tau*br.ms
 bench = bench
 
-parameters = [a, b, c, d, tau]
+parameters = [a, b, c, d, tau, vt]
 
 eqs_hidden_neurons = '''
-    dv/dt = (0.04/ms/mV)*v**2 + (5/ms) * v + 140*mV/ms - u + ge/ms + I/ms : mvolt
-    du/dt = a*((b*v) - u) : mvolt/msecond
-    dge/dt = -ge/tau : mvolt
-    I: mvolt
+    dv/dt=((0.04/mV)*v**2+(5)*v+140*mV-u+ge)/ms+I           : volt
+    du/dt=a*(b*v-u)                                         : volt
+    dge/dt=-ge/tau                                          : volt
+    I                                                       : volt / second
 '''
 
 """     USING MATHEMATICA
-
     u = 25. (-5 a b + A B)
     v = 25. (-5. + a b)
 """
@@ -118,7 +120,7 @@ reset = '''
 #pudb.set_trace()
 u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV
 v0 = (25*(-5 + A**2 * B**2)) * br.mV
-I0 = 0*br.mV
+I0 = 0*br.mV / br.ms
 ge0 = 0*br.mV
 
 img = np.empty(img_dims)
@@ -130,19 +132,24 @@ T = 40
 N_h = 1
 N_o = 1
 # DEFINE OBJECTS
-# pudb.set_trace()
-neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, vt, \
+#pudb.set_trace()
+neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
         parameters, eqs_hidden_neurons, reset)
 synapse_groups = init.SetSynapses(neuron_groups)
 output_monitor = init.StateMonitors(neuron_groups, 'out')
 spike_monitors = init.AllSpikeMonitors(neuron_groups)
-net = init.AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors)
+net = init.AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
 
+net.store()
+#pudb.set_trace()
 snn.Run(T, net, v0, u0, I0, ge0, bench, 0,\
-        neuron_groups, synapse_groups, output_monitor, spike_monitors)
+        neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
 
-snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
-        neuron_groups, synapse_groups, output_monitor, spike_monitors)
+pudb.set_trace()
+snn.Plot(output_monitor, 0)
+
+#snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
+#        neuron_groups, synapse_groups, output_monitor, spike_monitors)
 
 # LIQUID STATE MACHINE
 
