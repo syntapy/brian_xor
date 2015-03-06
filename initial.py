@@ -24,6 +24,7 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, eqs_hidden_neur
                                     threshold='v>vt', reset='v=0*volt',
                                     refractory='fire_once')
 
+    input_neurons.v = -76.151418*br.mV
     a = parameters[0]
     b = parameters[1]
     c = parameters[2]

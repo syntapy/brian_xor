@@ -89,7 +89,7 @@ number = 1 #number of hidden_neurons
 a = A / br.ms
 b = B
 c = C*br.mV
-d = D*br.mV/br.ms
+d = D*br.mV
 #vtest = -40 * br.mV
 #utest = - 0 * br.mV / br.ms
 #pudb.set_trace()
@@ -145,7 +145,7 @@ net.store()
 snn.Run(T, net, v0, u0, I0, ge0, bench, 0,\
         neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
 
-pudb.set_trace()
+#pudb.set_trace()
 snn.Plot(output_monitor, 0)
 
 #snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \

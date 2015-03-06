@@ -265,9 +265,10 @@ def Run(T, net, v0, u0, I0, ge0, bench, number, \
     return label
 
 def Plot(monitor, number):
+    #pudb.set_trace()
     br.plot(211)
-    br.plot(monitor[0].t/br.ms,monitor[0].v/br.mV, label='v')
-    #br.plot(monitor[1].t/br.ms,monitor[1][0]/br.mV, label='u')
+    br.plot(monitor[0].t/br.ms,monitor[0].v[0]/br.mV, label='v')
+    #br.plot(monitor[0].t/br.ms,monitor[0].u[0]/br.mV, label='u')
     #br.plot((monitor[2].t)/br.ms,(monitor[2][0]/br.mV), label='ge')
     br.legend()
     br.show()
