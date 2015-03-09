@@ -101,13 +101,13 @@ def GetInSpikes(img, bench='LI'):
             for i in x_range:
                 for j in y_range:
                     pixel = img[i][j]
-                    if pixel == 0:
-                        spikes[h] = 6
+                    if pixel == 1:
+                        spikes[h] = 7
                     else:
-                        spikes[h] = 0
+                        spikes[h] = 1
                     h += 1
 
-            spikes[h] = 0
+            spikes[h] = 7
 
             return spikes
 
@@ -237,8 +237,8 @@ def SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
         k += 1
 
 def Run(T, net, v0, u0, I0, ge0, bench, number, \
-    neuron_groups, synapse_groups, output_monitor, spike_monitors, \
-    parameters, train=False, letter=None):
+    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, \
+    train=False, letter=None):
 
     a = parameters[0]
     b = parameters[1]
@@ -246,19 +246,21 @@ def Run(T, net, v0, u0, I0, ge0, bench, number, \
     d = parameters[3]
     tau = parameters[4]
     vt = parameters[5]
+    vr = parameters[6]
 
     net.restore()
     img, label = ReadImg(number=number, bench=bench, letter=letter)
     spikes = GetInSpikes(img, bench=bench)
-    neuron_groups[0].period = spikes * br.ms
-    neuron_groups[0].fire_once = [True, True, True]
-    neuron_groups[0].v = 0
+    net[neuron_names[0]]
+    net[neuron_names[0]].period = spikes * br.ms
+    net[neuron_names[0]].fire_once = [True, True, True]
+    net[neuron_names[0]].v = vr
     #if number >= 0 and number < 4:
     #    neuron_groups[0].set_spiketimes(spikes)
     #else:
     #    neuron_groups[0].set_spiketimes([])
 
-    init.NeuronInitConditions(neuron_groups[1:], v0, u0, I0, ge0)
+    init.NeuronInitConditions(net, neuron_names[1:], v0, u0, I0, ge0)
     #pudb.set_trace()
     net.run(T*br.msecond,report='text')
 
@@ -267,7 +269,12 @@ def Run(T, net, v0, u0, I0, ge0, bench, number, \
 def Plot(monitor, number):
     #pudb.set_trace()
     br.plot(211)
-    br.plot(monitor[0].t/br.ms,monitor[0].v[0]/br.mV, label='v')
+    if type(monitor) == list or type(monitor) == tuple:
+        br.plot(monitor[0].t/br.ms,monitor[0].v[0]/br.mV, label='v')
+        #br.plot(monitor[1].t/br.ms,monitor[1].u[0]/br.mV, label='u')
+        #br.plot(monitor[2].t/br.ms,monitor[0].ge[0]/br.mV, label='v')
+    else:
+        br.plot(monitor.t/br.ms,monitor.v[0]/br.mV, label='v')
     #br.plot(monitor[0].t/br.ms,monitor[0].u[0]/br.mV, label='u')
     #br.plot((monitor[2].t)/br.ms,(monitor[2][0]/br.mV), label='ge')
     br.legend()

@@ -31,12 +31,12 @@ N = 1
 
 vt = -15 * br.mV
 vr = -74 * br.mV
-
+vr = -76.151418 * br.mV
 A=0.02
 B=0.2
 C=-65.0
 D=6.0
-tau=5.0
+tau=2.0
 bench='xor'
 levels=4
 
@@ -96,7 +96,7 @@ d = D*br.mV
 tau = tau*br.ms
 bench = bench
 
-parameters = [a, b, c, d, tau, vt]
+parameters = [a, b, c, d, tau, vt, vr]
 
 eqs_hidden_neurons = '''
     dv/dt=((0.04/mV)*v**2+(5)*v+140*mV-u+ge)/ms+I           : volt
@@ -122,6 +122,8 @@ u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV
 v0 = (25*(-5 + A**2 * B**2)) * br.mV
 I0 = 0*br.mV / br.ms
 ge0 = 0*br.mV
+u0 = -8.588384*br.mV
+v0 = vr
 
 img = np.empty(img_dims)
 
@@ -133,20 +135,32 @@ N_h = 1
 N_o = 1
 # DEFINE OBJECTS
 #pudb.set_trace()
+neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']
+synapse_names = ['Si', 'Sl', [], 'Sb']
+state_monitor_names = ['out_ge', 'out_v', 'out_u']
+spike_monitor_names = ['out']
+
+for i in range(len(N_hidden)):
+    neuron_names[2].append('hidden_' + str(i))
+    synapse_names[2].append('Sa_' + str(i))
+
 neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
-        parameters, eqs_hidden_neurons, reset)
-synapse_groups = init.SetSynapses(neuron_groups)
-output_monitor = init.StateMonitors(neuron_groups, 'out')
+            parameters, eqs_hidden_neurons, reset, neuron_names)
+synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
+output_monitor = init.StateMonitors(neuron_groups, 'liquid_in', index_record=0)
 spike_monitors = init.AllSpikeMonitors(neuron_groups)
+
 net = init.AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
+net = init.SetSynapseInitialWeights(net, synapse_names)
 
+#pudb.set_trace()
 net.store()
-#pudb.set_trace()
-snn.Run(T, net, v0, u0, I0, ge0, bench, 0,\
-        neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
+while True:
+    snn.Run(T, net, v0, u0, I0, ge0, bench, 0,\
+            neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#pudb.set_trace()
-snn.Plot(output_monitor, 0)
+    #pudb.set_trace()
+    snn.Plot(output_monitor, 0)
 
 #snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
 #        neuron_groups, synapse_groups, output_monitor, spike_monitors)
