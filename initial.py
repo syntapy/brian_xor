@@ -1,6 +1,7 @@
 import brian2 as br
 import numpy as np
 import pudb
+import snn
 
 def NeuronIndices(N_hidden):
     """
@@ -88,6 +89,8 @@ def NeuronInitConditions(net, neuron_names, v0, u0, I0, ge0):
                 InitConditions(net, neuron_names[i][j], v0, u0, I0, ge0)
         else:
             InitConditions(net, neuron_names[i], v0, u0, I0, ge0)
+
+    return net
 
 def SetSynapseInitialWeights(net, synapse_names):
 
@@ -258,5 +261,21 @@ def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, pa
     net = _network(net, synapse_groups)
     net = _network(net, output_monitor)
     net = _network(net, spike_monitors)
+
+    return net
+
+def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):
+
+    net.store()
+    for number in range(4):
+        net = NeuronInitConditions(net, neuron_names[1:], v0, u0, I0, ge0)
+        letter = None
+        label = 0
+        img, label = snn.ReadImg(number=number, bench=bench, letter=letter)
+        spikes = snn.GetInSpikes(img, bench=bench)
+        net[neuron_names[0]].period = spikes * br.ms
+        net[neuron_names[0]].fire_once = [True, True, True]
+        net[neuron_names[0]].v = vr
+        net.store(str(number))
 
     return net

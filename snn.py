@@ -1,6 +1,7 @@
 import initial as init
 import numpy as np
 import brian2 as br
+import cProfile
 import pudb
 
 def make2dList(rows, cols):
@@ -240,6 +241,7 @@ def Run(T, net, v0, u0, I0, ge0, bench, number, \
     neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, \
     train=False, letter=None):
 
+    #pudb.set_trace()
     a = parameters[0]
     b = parameters[1]
     c = parameters[2]
@@ -248,23 +250,12 @@ def Run(T, net, v0, u0, I0, ge0, bench, number, \
     vt = parameters[5]
     vr = parameters[6]
 
-    net.restore()
-    img, label = ReadImg(number=number, bench=bench, letter=letter)
-    spikes = GetInSpikes(img, bench=bench)
-    net[neuron_names[0]]
-    net[neuron_names[0]].period = spikes * br.ms
-    net[neuron_names[0]].fire_once = [True, True, True]
-    net[neuron_names[0]].v = vr
-    #if number >= 0 and number < 4:
-    #    neuron_groups[0].set_spiketimes(spikes)
-    #else:
-    #    neuron_groups[0].set_spiketimes([])
+    net.restore(str(number))
 
-    init.NeuronInitConditions(net, neuron_names[1:], v0, u0, I0, ge0)
     #pudb.set_trace()
     net.run(T*br.msecond,report='text')
 
-    return label
+    #return label
 
 def Plot(monitor, number):
     #pudb.set_trace()
