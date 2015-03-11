@@ -37,7 +37,7 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, \
 
     liquid_neurons = br.NeuronGroup(N_liquid[-1], model=eqs_hidden_neurons, \
             threshold='v>vt', refractory=2*br.ms, reset=reset, \
-            name=neuron_names[1][3])
+            method='euler', name=neuron_names[1][3])
 
     liquid_in = br.Subgroup(liquid_neurons, 0, N_liquid[0], \
             name=neuron_names[1][0])
@@ -58,10 +58,10 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, \
     for i in range(len(N_hidden)):
         hidden_neurons.append(br.NeuronGroup(N_hidden[i], \
             model=eqs_hidden_neurons, threshold='v>vt', refractory=2*br.ms, reset=reset, \
-            name=neuron_names[2][i]))
+            method='rk4', name=neuron_names[2][i]))
 
     output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons,\
-        threshold='v>vt', refractory=2*br.ms, reset=reset, name=neuron_names[3])
+        threshold='v>vt', refractory=2*br.ms, reset=reset, method='rk4', name=neuron_names[3])
 
     neuron_groups = [input_neurons, \
         [liquid_in, \
@@ -93,21 +93,33 @@ def NeuronInitConditions(net, neuron_names, v0, u0, I0, ge0):
     return net
 
 def SetSynapseInitialWeights(net, synapse_names):
-
-    #pudb.set_trace()
     net[synapse_names[0]].connect(True)
     net[synapse_names[0]].w[:]='42.2*(0.3+0.8*rand())'
     net[synapse_names[0]].delay='(1)*ms'
 
     net[synapse_names[1]].connect(True)
-    net[synapse_names[1]].w[:,:]='0.02*rand()'
+    net[synapse_names[1]].w[:,:]='6.2'
     net[synapse_names[1]].delay='3*rand()*ms'
 
     for i in range(len(synapse_names[2])):
         net[synapse_names[2][i]].connect(True)
-        net[synapse_names[2][i]].w[:, :]='0.1*(0.3+0.8*rand())'
+        net[synapse_names[2][i]].w[:, :]='0*10.1*(0.0+0.5*rand())'
         net[synapse_names[2][i]].delay='(1)*ms'
 
+    for i in range(1, len(net[synapse_names[2][-1]].w), 5):
+        net[synapse_names[2][-1]].w[i] = 10
+    """
+    0: 0
+    1: 1
+    2: 2
+    3: 
+    4: 
+    5: 0
+    6: 1
+    7: 2
+    8: 
+    """
+    #net[synapse_names[2][-1]].w[9] = 10
     net[synapse_names[-1]].connect(True)
     net[synapse_names[-1]].w[:, :]='0.9*(0.1+0.2*rand())'
     net[synapse_names[-1]].delay='(1)*ms'
@@ -138,41 +150,35 @@ def SetSynapses(neuron_groups, synapse_names):
 
     return synapse_groups
 
-def NeuronGroupIndex(index_str, index_aux=None):
+def NeuronGroupIndex(index_str):
 
     if index_str == 'input':
         index_a = 0
         index_b = None
-        index_aux = None
     elif index_str == 'liquid_in':
         index_a = 1
         index_b = 0
-        index_aux = None
     elif index_str == 'liquid_hidden':
         index_a = 1
         index_b = 1
-        index_aux = None
     elif index_str == 'liquid_out':
         index_a = 1
         index_b = 2
-        index_aux = None
     elif index_str == 'liquid_all':
         index_a = 1
         index_b = 3
-        index_aux = None
-    elif index_str == 'hidden':
+    elif index_str[:-1] == 'hidden_':
         index_a = 2
-        index_b = None
+        index_b = int(index_str[-1])
     elif index_str == 'out':
         index_a = 3
         index_b = None
-        index_aux = None
 
-    return index_a, index_b, index_aux
+    return index_a, index_b
 
-def StateMonitors(neuron_groups, index_str, index_record=0, index_aux=None):
+def StateMonitors(neuron_groups, index_str, index_record=0):
 
-    index_a, index_b, index_aux = NeuronGroupIndex(index_str, index_aux)
+    index_a, index_b = NeuronGroupIndex(index_str)
     if index_str == 'input':
         M = br.StateMonitor(neuron_groups[index_a], 'v', record=index_record, \
                     name=(index_str + '_v'))
@@ -180,27 +186,20 @@ def StateMonitors(neuron_groups, index_str, index_record=0, index_aux=None):
         return M
 
     else:
-        if index_b == None and index_aux == None:
+        if index_b == None:
             Mge = br.StateMonitor(neuron_groups[index_a], 'ge', record=index_record, \
-                        name=(index_str + '_ge'))
+                        name=(index_str + '_ge' + str(index_record)))
             Mv = br.StateMonitor(neuron_groups[index_a], 'v', record=index_record, \
-                        name=(index_str + '_v'))
+                        name=(index_str + '_v' + str(index_record)))
             Mu = br.StateMonitor(neuron_groups[index_a], 'u', record=index_record, \
-                        name=(index_str + '_u'))
-        elif index_a == 2:
-            Mge = br.StateMonitor(neuron_groups[index_a][index_aux], 'ge', record=index_record, \
-                        name=(index_str + '_ge'))
-            Mv = br.StateMonitor(neuron_groups[index_a][index_aux], 'v', record=index_record, \
-                        name=(index_str + '_v'))
-            Mu = br.StateMonitor(neuron_groups[index_a][index_aux], 'u', record=index_record, \
-                        name=(index_str + '_u'))
-        elif index_b != None:
+                        name=(index_str + '_u' + str(index_record)))
+        else:
             Mge = br.StateMonitor(neuron_groups[index_a][index_b], 'ge', record=index_record, \
-                        name=index_str + '_ge')
+                        name=(index_str + '_ge' + str(index_record)))
             Mv = br.StateMonitor(neuron_groups[index_a][index_b], 'v', record=index_record, \
-                        name=index_str + '_v')
+                        name=(index_str + '_v' + str(index_record)))
             Mu = br.StateMonitor(neuron_groups[index_a][index_b], 'u', record=index_record, \
-                        name=index_str + '_u')
+                        name=(index_str + '_u' + str(index_record)))
 
         return Mv, Mu, Mge
 
@@ -216,17 +215,19 @@ def SpikeMonitor(neuron_groups, index_str):
 
     return S
 
-def AllSpikeMonitors(neuron_groups):
+def AllSpikeMonitors(neuron_groups, spike_monitor_names):
     N = len(neuron_groups)
 
     spike_monitors = []
 
-    spike_monitors.append(br.SpikeMonitor(neuron_groups[0], record=0))
-    spike_monitors.append(br.SpikeMonitor(neuron_groups[1][-1], record=0))
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[0], record=0, name=spike_monitor_names[0]))
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[1][-1], record=0, \
+            name=spike_monitor_names[1]))
     spike_monitors.append([])
     for i in range(len(neuron_groups[2])):
-        spike_monitors[2].append(br.SpikeMonitor(neuron_groups[2][i], record=0))
-    spike_monitors.append(br.SpikeMonitor(neuron_groups[3], record=0))
+        spike_monitors[2].append(br.SpikeMonitor(neuron_groups[2][i], \
+                record=0, name=spike_monitor_names[2][i]))
+    spike_monitors.append(br.SpikeMonitor(neuron_groups[3], record=0, name=spike_monitor_names[3]))
 
     return spike_monitors
 
@@ -246,7 +247,7 @@ def _network(net, group):
 
     return net
 
-def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters):
+def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters):
     a = parameters[0]
     b = parameters[1]
     c = parameters[2]
@@ -259,8 +260,12 @@ def AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, pa
 
     net = _network(net, neuron_groups)
     net = _network(net, synapse_groups)
-    net = _network(net, output_monitor)
     net = _network(net, spike_monitors)
+    if type(state_monitors) == list or type(state_monitors) == tuple:
+        for i in range(len(state_monitors)):
+            net = _network(net, state_monitors[i])
+    else:
+        net = _network(net, state_monitors)
 
     return net
 

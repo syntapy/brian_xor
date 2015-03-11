@@ -5,7 +5,7 @@ import brian2 as br
 import time
 import pudb
 import snn 
-import train
+#import train
 import initial as init
 import cProfile
 
@@ -139,30 +139,42 @@ N_o = 1
 neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']
 synapse_names = ['Si', 'Sl', [], 'Sb']
 state_monitor_names = ['out_ge', 'out_v', 'out_u']
-spike_monitor_names = ['out']
+spike_monitor_names = ['sm_in', 'sm_liq', [], 'sm_out']
 
 for i in range(len(N_hidden)):
     neuron_names[2].append('hidden_' + str(i))
     synapse_names[2].append('Sa_' + str(i))
+    spike_monitor_names[2].append('sm_h_' + str(i))
 
 neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
             parameters, eqs_hidden_neurons, reset, neuron_names)
 synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
-output_monitor = init.StateMonitors(neuron_groups, 'liquid_in', index_record=0)
-spike_monitors = init.AllSpikeMonitors(neuron_groups)
+#pudb.set_trace()
+state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)
+state_monitor_b =  init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)
+state_monitor_c =  init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)
 
-net = init.AddNetwork(neuron_groups, synapse_groups, output_monitor, spike_monitors, parameters)
+spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
+
+state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]
+
+net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
 
-#pudb.set_trace()
-for number in range(4):
-    snn.Run(T, net, v0, u0, I0, ge0, bench, number,\
-            neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-    snn.Plot(output_monitor, number)
+#snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, I0, ge0, net, \
+#        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
 
-#snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, bench, number, \
-#        neuron_groups, synapse_groups, output_monitor, spike_monitors)
+for number in range(4):
+    snn.Run(T, v0, u0, I0, ge0, neuron_names, \
+            synapse_names, state_monitor_names, spike_monitor_names, parameters, number, net)
+    snn.Plot(state_monitor_a, number)
+    snn.Plot(state_monitor_b, number)
+    snn.Plot(state_monitor_c, number)
+    #pudb.set_trace()
+    #tested = snn.CheckNumSpikes(T, 1, 1, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net)
+#
+#snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, number, net)
 
 # LIQUID STATE MACHINE
 
