@@ -310,10 +310,53 @@ def SetNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, net, \
                         neuron_names, spike_monitor_names, net)
 
                 if layer == 0:
-                    modified, net = BasicTraining(net, neuron_names[2][-1], synapse_names[2][-1], spike_monitor_names[2][-1], number, dw_abs, N_h)
+                    k_modified, net = BasicTraining(net, neuron_names[2][-1], synapse_names[2][-1], spike_monitor_names[2][-1], number, dw_abs, N_h)
                 else:
-                    modified, net = BasicTraining(net, neuron_names[3], synapse_names[3], spike_monitor_names[3], number, dw_abs, N_o)
+                    k_modified, net = BasicTraining(net, neuron_names[3], synapse_names[3], spike_monitor_names[3], number, dw_abs, N_o)
+
+                if k_modified == True:
+                    modified = True
                 k += 1
+    return net
+
+def SaveWeights(synapses, file_name):
+
+    F = open(file_name, 'w')
+    n = len(synapses.w[:])
+    for i in range(n):
+        F.write(synapses.w[i])
+        F.write('\n')
+    F.close()
+
+def ReadWeights(file_name):
+    F = open(file_name, 'r')
+    string = F.readlines()
+
+    n = len(string)
+
+    weights = np.empty(n, dtype=float)
+
+    for i in xrange(n):
+        weights[i] = float(string[i][:-1])
+
+    return weights
+
+def SaveNetworkWeights(net, synapse_names):
+    for i in range(len(synapse_names)):
+        if type(synapse_names[i]) == list:
+            for j in range(len(synapse_names[i])):
+                SaveWeights(net[synapse_names[i][j]], 'weights/' + synapse_names[i][j] + '.txt')
+        else:
+            SaveWeights(net[synapse_names[i]], 'weights/' + synapse_names[i] + '.txt')
+
+def ReadNetworkWeights(net, synapse_names):
+    for i in xrange(len(synapse_names)):
+        if type(synapse_names[i]) == list:
+            for j in xrange(len(synapse_names[i])):
+                net[synapse_names[i][j]].w[:] = ReadWeights('weights/' + synapse_names[i][j] + '.txt')
+        else:
+            net[synapse_names[i]].w[:] = ReadWeights('weights/' + synapse_names[i] + '.txt')
+
     return net
 
 def Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, \

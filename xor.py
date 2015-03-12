@@ -165,7 +165,9 @@ net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
 net = snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, I0, ge0, net, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
 
+snn.SaveWeights(net, synapse_names)
 pudb.set_trace()
+# zellner or koehler
 #for number in range(4):
 #    snn.Run(T, v0, u0, I0, ge0, neuron_names, \
 #            synapse_names, state_monitor_names, spike_monitor_names, parameters, number, net)

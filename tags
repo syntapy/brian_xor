@@ -40,8 +40,12 @@ PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_
 Plot	snn.py	/^def Plot(monitor, number):$/;"	f
 ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
+ReadNetworkWeights	snn.py	/^def ReadNetworkWeights(net, synapse_names):$/;"	f
 ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
+ReadWeights	snn.py	/^def ReadWeights(file_name):$/;"	f
 Run	snn.py	/^    state_monitor_names, spike_monitor_names, parameters, number, net):$/;"	f
+SaveNetworkWeights	snn.py	/^def SaveNetworkWeights(net, synapse_names):$/;"	f
+SaveWeights	snn.py	/^def SaveWeights(synapses, file_name):$/;"	f
 SetInitStates	initial.py	/^def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):$/;"	f
 SetNeuronGroups	initial.py	/^        eqs_hidden_neurons, reset, neuron_names):$/;"	f
 SetNumSpikes	snn.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number):$/;"	f
