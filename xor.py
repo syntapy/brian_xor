@@ -151,8 +151,8 @@ neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
 synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
 #pudb.set_trace()
 state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)
-state_monitor_b =  init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)
-state_monitor_c =  init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)
+state_monitor_b = init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)
+state_monitor_c = init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)
 
 spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
 
@@ -162,15 +162,16 @@ net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monit
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
 
-#snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, I0, ge0, net, \
-#        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
+net = snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, I0, ge0, net, \
+        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
 
-for number in range(4):
-    snn.Run(T, v0, u0, I0, ge0, neuron_names, \
-            synapse_names, state_monitor_names, spike_monitor_names, parameters, number, net)
-    snn.Plot(state_monitor_a, number)
-    snn.Plot(state_monitor_b, number)
-    snn.Plot(state_monitor_c, number)
+pudb.set_trace()
+#for number in range(4):
+#    snn.Run(T, v0, u0, I0, ge0, neuron_names, \
+#            synapse_names, state_monitor_names, spike_monitor_names, parameters, number, net)
+#    snn.Plot(state_monitor_a, number)
+    #snn.Plot(state_monitor_b, number)
+    #snn.Plot(state_monitor_c, number)
     #pudb.set_trace()
     #tested = snn.CheckNumSpikes(T, 1, 1, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net)
 #

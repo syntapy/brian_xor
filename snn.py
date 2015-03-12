@@ -144,7 +144,7 @@ def ModifyWeights(S, dv):
 
     return S
 
-def CollectHiddenSpikes(indices, spikes):
+def CollectSpikes(indices, spikes, N_neurons):
     """
     This takes the indices and spike times and converts them into a list of lists
     """
@@ -154,12 +154,14 @@ def CollectHiddenSpikes(indices, spikes):
     spikes_list = []
 
     j = 0
-    sort_indices = br.argsort(indices)
-    for i in range(len(sort_indices)):
+    arg_sort = br.argsort(indices)
+    sorted_indices = br.sort(indices)
+    for i in range(N_neurons):
         spikes_list.append([])
-        while sort_indices[j] == i:
-            spikes[i].append(spikes[sort_indices[j]])
-            j += 1
+
+    for i in range(len(sorted_indices)):
+        index = arg_sort[i]
+        spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
 
     return spikes_list
 
@@ -203,13 +205,52 @@ def CheckNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_moni
 
     return True
 
-def ModifyNeuronWeights(layer_synapses, dv):
-    pass
+def ModifyNeuronWeights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):
+    N_neurons = len(net[neuron_str])
+    N_synapses = len(net[synapse_str])
+    for i in range(neuron_index, N_synapses, N_synapses / N_neurons):
+        net[synapse_str].w[i] += dv*br.random()
 
-def ModifyLayerWeights(layer_neurons, layer_synapses, number, dv):
-    N = len(layer_neurons)
-    for i in range(number, N, 4):
-        pass
+    return net
+
+def ModifyLayerWeights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):
+
+    modified = False
+    N_neurons = len(net[neuron_str])
+    if N_neurons == 1:
+        index = 0
+    else:
+        index = number
+    #pudb.set_trace()
+    for i in range(index, N_neurons, 4):
+        for j in range(N_neurons):
+            if len(spikes[j]) > D_spikes:
+                modified = True
+                net = ModifyNeuronWeights(net, neuron_str, synapse_str, j, -dw_abs, N_neurons)
+            elif len(spikes[j]) < D_spikes:
+                modified = True
+                net = ModifyNeuronWeights(net, neuron_str, synapse_str, j, dw_abs, N_neurons)
+
+    return modified, net
+
+def BasicTraining(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):
+    """
+    Modifies the weights leading to each neuron in either the hidden layer or the output layer,
+    in order to take it a step closer to having the desired number of spikes
+    """
+    layer_neurons = net[neuron_str]
+    layer_synapses = net[synapse_str]
+    spike_monitor = net[spike_monitor_str]
+    N_neurons = len(layer_neurons)
+
+    indices, spikes = spike_monitor.it
+    #pudb.set_trace()
+    spikes = CollectSpikes(indices, spikes, N_neurons)
+    net.restore(str(number))
+    modified, net = ModifyLayerWeights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes)
+    net.store(str(number))
+
+    return modified, net
 
 def SetNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, net, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number):
@@ -236,88 +277,49 @@ def SetNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, net, \
     and so forth. That might be usefull.
     """
 
-    dv = 0.02
-    min_dv = 0.001
+    dw_abs = 0.02
+    min_dw_abs = 0.001
     i = 0
-    last = 0 # -1, 0, 1: left, neither, right
+    #last = 0 # -1, 0, 1: left, neither, right
 
     print "layer = ", layer
     if layer == 0:
-        dv = 0.02
-        right_dv = True
+        dw_abs = 0.5
+        #right_dw_abs = True
     else:
-        dv = 0.0005
-        div = 0
+        dw_abs = 0.0005
+        #div = 0
     modified = True
     j = 0
     while modified == True:
         modified = False
         print "\tj = ", j
         j += 1
+        k = 0
         for number in range(4):
-            done = False
+            desired_spikes = False
             print "\t\tNumber = ", number, "\t"
-            while done == False:
+            while desired_spikes == False:
                 #pudb.set_trace()
                 Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters, number, net)
 
-                pudb.set_trace()
-                done = CheckNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, \
+                print "\t\t\tk = ", k
+                #pudb.set_trace()
+                desired_spikes = CheckNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, \
                         neuron_names, spike_monitor_names, net)
 
-                spike_monitor_hidden = net[spike_monitor_names[2][-1]]
-                indices, spikes = spike_monitor_hidden.it
-
-                #N_hidden = len(hidden_neurons)
-                spikes_hidden = CollectHiddenSpikes(indices, spikes)
-                #N_out = len(spikes_out)
-
                 if layer == 0:
-                    layer_neurons = net[neuron_names[2][-1]]
-                    layer_synapses = net[synapse_names[2][-1]]
-                    hidden_are_set = ModifyLayerWeights(layer_neurons, layer_synapses, number, 0.01)
-                    """
-                    print "\t\t\t\t."
-                    for i in range(len(hidden_neurons)):
-                        if len(S_hidden[i]) < N_h:
-                            ModifyWeights(Sa[i], dv, 0)
-                            modified = True
-                        elif len(S_hidden[i]) > N_h:
-                            ModifyWeights(Sa[i], -dv, 0)
-                            modified = True
-                    """
+                    modified, net = BasicTraining(net, neuron_names[2][-1], synapse_names[2][-1], spike_monitor_names[2][-1], number, dw_abs, N_h)
                 else:
-                    pass
-                    """
-                    print "\t\t\t\tdiv = ", div
-                    print S_hidden.spiketimes
-                    if N_out < N_o:
-                        if last == 1:
-                            if dv > min_dv:
-                                dv = dv / 2
-                                div += 1
-                        elif last == 0:
-                            last = -1
-                        ModifyWeights(Sb, 0*dv, 0)
-                        modified = True
-                    elif N_out > N_o:
-                        ModifyWeights(Sb, -0*dv, 0)
-                        modified = True
-                        #last = 1
-                    elif N_out == N_o:
-                        done = True
-                        if dv > min_dv:
-                            ModifyWeights(Sb, -dv, 1)
-                            modified = True
-                            last = 1
-                        else:
-                        """
+                    modified, net = BasicTraining(net, neuron_names[3], synapse_names[3], spike_monitor_names[3], number, dw_abs, N_o)
+                k += 1
+    return net
 
 def Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, \
     state_monitor_names, spike_monitor_names, parameters, number, net):
 
-    print "STARTING RUN FUNCTION"
+    #print "STARTING RUN FUNCTION"
     #pudb.set_trace()
     a = parameters[0]
     b = parameters[1]
@@ -327,12 +329,12 @@ def Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, \
     vt = parameters[5]
     vr = parameters[6]
 
-    print "RESTORING NETWORK"
+    #print "RESTORING NETWORK"
     net.restore(str(number))
 
-    print "STARTING COMPUTATIONS"
-    net.run(T*br.msecond,report='text')
-    print "DONE"
+    #print "STARTING COMPUTATIONS"
+    net.run(T*br.msecond,report=None)
+    #print "DONE"
 
     #return label
 
@@ -489,3 +491,51 @@ def ReadWeights(Si, Sl, Sa, Sb, filename):
         k += 1
 
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+print "\t\t\t\t."
+for i in range(len(hidden_neurons)):
+    if len(S_hidden[i]) < N_h:
+        ModifyWeights(Sa[i], dv, 0)
+        modified = True
+    elif len(S_hidden[i]) > N_h:
+        ModifyWeights(Sa[i], -dv, 0)
+        modified = True
+"""
+"""
+print "\t\t\t\tdiv = ", div
+print S_hidden.spiketimes
+if N_out < N_o:
+    if last == 1:
+        if dv > min_dv:
+            dv = dv / 2
+            div += 1
+    elif last == 0:
+        last = -1
+    ModifyWeights(Sb, 0*dv, 0)
+    modified = True
+elif N_out > N_o:
+    ModifyWeights(Sb, -0*dv, 0)
+    modified = True
+    #last = 1
+elif N_out == N_o:
+    done = True
+    if dv > min_dv:
+        ModifyWeights(Sb, -dv, 1)
+        modified = True
+        last = 1
+    else:
+    """

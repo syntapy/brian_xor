@@ -103,22 +103,22 @@ def SetSynapseInitialWeights(net, synapse_names):
 
     for i in range(len(synapse_names[2])):
         net[synapse_names[2][i]].connect(True)
-        net[synapse_names[2][i]].w[:, :]='0*10.1*(0.0+0.5*rand())'
+        net[synapse_names[2][i]].w[:, :]='15.1*(0.5+0.5*rand())'
         net[synapse_names[2][i]].delay='(1)*ms'
 
-    for i in range(1, len(net[synapse_names[2][-1]].w), 5):
-        net[synapse_names[2][-1]].w[i] = 10
     """
-    0: 0
-    1: 1
-    2: 2
-    3: 
-    4: 
-    5: 0
-    6: 1
-    7: 2
-    8: 
+    non-zero index     non-zero neuron
+    0:                 0
+    1:                 1
+    2:                 2
+    3:                 
+    4:                 
+    5:                 0
+    6:                 1
+    7:                 2
+    8:                 
     """
+    net[synapse_names[2][-1]].w[:, :]='15.1*(0.0+0.5*rand())'
     #net[synapse_names[2][-1]].w[9] = 10
     net[synapse_names[-1]].connect(True)
     net[synapse_names[-1]].w[:, :]='0.9*(0.1+0.2*rand())'
