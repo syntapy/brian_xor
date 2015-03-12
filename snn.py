@@ -108,7 +108,7 @@ def GetInSpikes(img, bench='LI'):
                         spikes[h] = 1
                     h += 1
 
-            spikes[h] = 7
+            spikes[h] = 1
 
             return spikes
 
@@ -135,11 +135,10 @@ def P_Index(S_d, S_l):
 
     return return_val
 
-def Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, \
-    state_monitor_names, spike_monitor_names, parameters, number, net):
+def Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, \
+    state_monitor_names, spike_monitor_names, parameters, number):
 
     #print "STARTING RUN FUNCTION"
-    #pudb.set_trace()
     a = parameters[0]
     b = parameters[1]
     c = parameters[2]
@@ -153,6 +152,7 @@ def Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, \
 
     #print "STARTING COMPUTATIONS"
     net.run(T*br.msecond,report=None)
+    #pudb.set_trace()
     #print "DONE"
 
     #return label

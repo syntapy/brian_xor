@@ -95,7 +95,8 @@ def TestNodeRange(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor
 
     return return_val
 
-def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):
+def ReSuMe(net, desired_times, Pc, T, N, v0, u0, I0, ge0, \
+        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     img, label = snn.ReadImg(number=number, bench=bench)
     N_hidden_last = len(hidden_neurons[-1])
