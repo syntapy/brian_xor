@@ -8,19 +8,21 @@ A	xor.py	/^A=0.02$/;"	v
 AddNetwork	initial.py	/^def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters):$/;"	f
 AllSpikeMonitors	initial.py	/^def AllSpikeMonitors(neuron_groups, spike_monitor_names):$/;"	f
 B	xor.py	/^B=0.2$/;"	v
-BasicTraining	snn.py	/^def BasicTraining(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$/;"	f
+BasicTraining	initial.py	/^def BasicTraining(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$/;"	f
 C	xor.py	/^C=-65.0$/;"	v
-CheckNumSpikes	snn.py	/^def CheckNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net):$/;"	f
-CollectSpikes	snn.py	/^def CollectSpikes(indices, spikes, N_neurons):$/;"	f
+CheckNumSpikes	initial.py	/^def CheckNumSpikes(layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net):$/;"	f
+CollectSpikes	initial.py	/^def CollectSpikes(indices, spikes, N_neurons):$/;"	f
+CompatibleDimensions	initial.py	/^def CompatibleDimensions(net, synapse_name_single):$/;"	f
+CorrectWeightsExist	initial.py	/^def CorrectWeightsExist(net, synapse_names, N_liquid, N_hidden):$/;"	f
 D	xor.py	/^D=6.0$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
 I0	xor.py	/^I0 = 0*br.mV \/ br.ms$/;"	v
 InitConditions	initial.py	/^def InitConditions(net, string, v0, u0, I0, ge0):$/;"	f
 L	train.py	/^def L(t):$/;"	f
-ModifyLayerWeights	snn.py	/^def ModifyLayerWeights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):$/;"	f
-ModifyNeuronWeights	snn.py	/^def ModifyNeuronWeights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):$/;"	f
-ModifyWeights	snn.py	/^def ModifyWeights(S, dv):$/;"	f
+ModifyLayerWeights	initial.py	/^def ModifyLayerWeights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):$/;"	f
+ModifyNeuronWeights	initial.py	/^def ModifyNeuronWeights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):$/;"	f
+ModifyWeights	initial.py	/^def ModifyWeights(S, dv):$/;"	f
 N	xor.py	/^    N = 1$/;"	v
 N	xor.py	/^N = 1$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
@@ -32,6 +34,7 @@ N_out	xor.py	/^N_out = 1$/;"	v
 NeuronGroupIndex	initial.py	/^def NeuronGroupIndex(index_str):$/;"	f
 NeuronIndices	initial.py	/^def NeuronIndices(N_hidden):$/;"	f
 NeuronInitConditions	initial.py	/^def NeuronInitConditions(net, neuron_names, v0, u0, I0, ge0):$/;"	f
+NumberLines	initial.py	/^def NumberLines(synapse_name_single):$/;"	f
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
 Pc	xor.py	/^Pc = 0.05$/;"	v
@@ -40,23 +43,25 @@ PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_
 Plot	snn.py	/^def Plot(monitor, number):$/;"	f
 ReSuMe	train.py	/^def ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
 ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
-ReadNetworkWeights	snn.py	/^def ReadNetworkWeights(net, synapse_names):$/;"	f
+ReadNetworkWeights	initial.py	/^def ReadNetworkWeights(net, synapse_names):$/;"	f
 ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
-ReadWeights	snn.py	/^def ReadWeights(file_name):$/;"	f
+ReadWeights	initial.py	/^def ReadWeights(file_names):$/;"	f
 Run	snn.py	/^    state_monitor_names, spike_monitor_names, parameters, number, net):$/;"	f
-SaveNetworkWeights	snn.py	/^def SaveNetworkWeights(net, synapse_names):$/;"	f
-SaveWeights	snn.py	/^def SaveWeights(synapses, file_name):$/;"	f
+SaveNetworkWeights	initial.py	/^def SaveNetworkWeights(net, synapse_names):$/;"	f
+SaveWeights	initial.py	/^def SaveWeights(synapses, file_name):$/;"	f
 SetInitStates	initial.py	/^def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):$/;"	f
 SetNeuronGroups	initial.py	/^        eqs_hidden_neurons, reset, neuron_names):$/;"	f
-SetNumSpikes	snn.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number):$/;"	f
+SetNumSpikes	initial.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number):$/;"	f
 SetSynapseInitialWeights	initial.py	/^def SetSynapseInitialWeights(net, synapse_names):$/;"	f
 SetSynapses	initial.py	/^def SetSynapses(neuron_groups, synapse_names):$/;"	f
+SetWeights	initial.py	/^def SetWeights(net, synapse_names):$/;"	f
 SpikeMonitor	initial.py	/^def SpikeMonitor(neuron_groups, index_str):$/;"	f
 SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 StateMonitors	initial.py	/^def StateMonitors(neuron_groups, index_str, index_record=0):$/;"	f
+StringToWeights	initial.py	/^def StringToWeights(string):$/;"	f
 SynapseIndices	initial.py	/^def SynapseIndices(N_hidden):$/;"	f
 T	xor.py	/^T = 40$/;"	v
-TestNodeRange	train.py	/^def TestNodeRange(T, N, v0, u0, bench, number, neuron_groups, synapse_groups, M, Mv, Mu, S_in, S_hidden, S_out):$/;"	f
+TestNodeRange	train.py	/^        parameters, number, net)$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
 _network	initial.py	/^def _network(net, group):$/;"	f
 a	xor.py	/^a = A \/ br.ms$/;"	v
@@ -74,10 +79,10 @@ img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^levels=4$/;"	v
 make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
-net	xor.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)$/;"	v
-net	xor.py	/^net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$/;"	v
+net	xor.py	/^net = init.I0, ge0, AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$/;"	v
 net	xor.py	/^net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)$/;"	v
 net	xor.py	/^net = init.SetSynapseInitialWeights(net, synapse_names)$/;"	v
+net	xor.py	/^net = init.SetWeights(net, synapse_names)$/;"	v
 neuron_groups	xor.py	/^            parameters, eqs_hidden_neurons, reset, neuron_names)$/;"	v
 neuron_names	xor.py	/^neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v

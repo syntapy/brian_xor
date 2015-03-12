@@ -158,14 +158,11 @@ spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
 
 state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]
 
-net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
+net = init.I0, ge0, AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
+net = init.SetWeights(net, synapse_names)
 
-net = snn.SetNumSpikes(0, T, N_h, N_o, v0, u0, I0, ge0, net, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
-
-snn.SaveWeights(net, synapse_names)
 pudb.set_trace()
 # zellner or koehler
 #for number in range(4):
