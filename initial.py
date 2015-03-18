@@ -492,25 +492,26 @@ def _save_single_weight(synapses, file_name):
         F.write('\n')
     F.close()
 
-def _save_weights(net, synapse_names):
-    for i in range(len(synapse_names)):
+def _save_weights(net, synapse_names, a, b):
+    for i in range(a, b):
         if type(synapse_names[i]) == list:
             for j in range(len(synapse_names[i])):
                 synapse = net[synapse_names[i][j]]
                 file_name = 'weights/' + synapse_names[i][j] + '.txt'
                 _save_single_weight(synapse, file_name)
         else:
+            #pudb.set_trace()
             synapse = net[synapse_names[i]]
             file_name = 'weights/' + synapse_names[i] + '.txt'
             _save_single_weight(synapse, file_name)
 
-def _save_weights(net, synapse_names, wset):
+def _save_weights_meta(net, synapse_names, wset=None):
     if wset == 0:
-        _save_weights(net, synapse_names[:-1])
+        _save_weights(net, synapse_names, 0, len(synapse_names)-1)
     elif wset == 1:
-        _save_weights(net, synapse_names[-1])
+        _save_weights(net, synapse_names, len(synapse_names) - 1, len(synapse_names))
     else:
-        _save_weights(net, synapse_names)
+        _save_weights(net, synapse_names, 0, len(synapse_names))
 
 def _string_to_weights(string):
     """
@@ -607,9 +608,9 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
          neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     #pudb.set_trace()
-    if _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
+    if False and _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
         net = _readweights(net, synapse_names)
-    elif _correct_weights_exist(net, synapse_names[:-1], N_liquid, N_hidden):
+    elif False and _correct_weights_exist(net, synapse_names[:-1], N_liquid, N_hidden):
         net = _readweights(net, synapse_names[:-1])
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
@@ -618,12 +619,12 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         net = set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights(net, synapse_names, 0)
+        _save_weights_meta(net, synapse_names, 0)
 
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights(net, synapse_names, 1)
+        _save_weights_meta(net, synapse_names, 1)
 
 
     return net
@@ -654,11 +655,13 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
 
     extreme_spikes = [-1, -1]
 
-    old_weights[:] = net[synapse_names[2][-1]].w[:]
-    net[synapse_names[2][-1]].w[:] = np.zeros(n_hidden_last, dtype=float)
-    net.store['5']
+    #pudb.set_trace()
+    #old_weights[:] = net[synapse_names[3]].w[:]
+    net[synapse_names[3]].w[:] = np.zeros(n_hidden_last, dtype=float)
+    net.store('5')
 
     j = 0
+    print "Determining spike-time range:"
     while True:
 
         snn.Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, \
@@ -670,7 +673,7 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
         spikes_out = collect_spikes(indices, spikes, 1)
         #spikes_hidden = S_hidden.spiketimes[0]
         n_outspikes = len(spikes_out)
-        print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
+        #print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
 
         if n_outspikes == 1:
             if extreme_spikes[0] == -1:
@@ -681,17 +684,12 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
             #pudb.set_trace()
             break
 
-        net[syapse_names[2][-1]].w[0] = net[synapse_names[2][-1]].W[0] + 0.0001
-        #Sb.w[0] = Sb.w[0] + 0.001
+        net[synapse_names[3]].w[0] = net[synapse_names[3]].w[0] + 0.0001
+        print "\tj = ", j
+        j += 1
 
-        #if j % 1 == 0:
-        #    snn.Plot(Mv, 0)
-        #    
-        #j += 1
-
-
-    for i in range(n_hidden_last):
-        Sb.w[i] = old_weights[i]
+    net.restore('4')
+    #net[synapse_names[3]].w[:] = old_weights[:]
 
     return extreme_spikes
 

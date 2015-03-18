@@ -158,6 +158,7 @@ spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
 
 state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]
 
+#pudb.set_trace()
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
