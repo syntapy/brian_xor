@@ -4,114 +4,114 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-A	xor.py	/^A=0.02$/;"	v
-AddNetwork	initial.py	/^def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters):$/;"	f
-AllSpikeMonitors	initial.py	/^def AllSpikeMonitors(neuron_groups, spike_monitor_names):$/;"	f
-B	xor.py	/^B=0.2$/;"	v
-C	xor.py	/^C=-65.0$/;"	v
-D	xor.py	/^D=6.0$/;"	v
-DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
-GetInSpikes	snn.py	/^def GetInSpikes(img, bench='LI'):$/;"	f
-I0	xor.py	/^I0 = 0*br.mV \/ br.ms$/;"	v
-L	train.py	/^def L(t):$/;"	f
-N	xor.py	/^    N = 1$/;"	v
-N	xor.py	/^N = 1$/;"	v
-N_h	xor.py	/^N_h = 1$/;"	v
-N_hidden	xor.py	/^N_hidden = [5]$/;"	v
-N_in	xor.py	/^N_in = 2$/;"	v
-N_liquid	xor.py	/^N_liquid = [3, 3, 8] # Total, liquid in, liquid out$/;"	v
-N_o	xor.py	/^N_o = 1$/;"	v
-N_out	xor.py	/^N_out = 1$/;"	v
-OutputTimeRange	initial.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
-P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
-Pc	xor.py	/^Pc = 0.05$/;"	v
-PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
-PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
-Plot	snn.py	/^def Plot(monitor, number):$/;"	f
-ReSuMe	train.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
-ReadTimes	initial.py	/^def ReadTimes(file_name):$/;"	f
-ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
-Run	snn.py	/^    state_monitor_names, spike_monitor_names, parameters, number):$/;"	f
-SetInitStates	initial.py	/^def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):$/;"	f
-SetNeuronGroups	initial.py	/^        eqs_hidden_neurons, reset, neuron_names):$/;"	f
-SetSynapseInitialWeights	initial.py	/^def SetSynapseInitialWeights(net, synapse_names):$/;"	f
-SetSynapses	initial.py	/^def SetSynapses(neuron_groups, synapse_names):$/;"	f
-SetWeights	initial.py	/^         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-SpikeMonitor	initial.py	/^def SpikeMonitor(neuron_groups, index_str):$/;"	f
-SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
-StateMonitors	initial.py	/^def StateMonitors(neuron_groups, index_str, index_record=0):$/;"	f
-T	xor.py	/^T = 40$/;"	v
-TestNodeRange	initial.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-TestNodeRange	train.py	/^        parameters, number, net)$/;"	f
-WeightChange	train.py	/^def WeightChange(s):$/;"	f
-_basic_training	initial.py	/^def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$/;"	f
-_check_number_spikes	initial.py	/^def _check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_monitor_names):$/;"	f
-_collect_spikes	initial.py	/^def _collect_spikes(indices, spikes, N_neurons):$/;"	f
-_compatible_dimensions	initial.py	/^def _compatible_dimensions(net, synapse_name_single):$/;"	f
-_correct_weights_exist	initial.py	/^def _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):$/;"	f
-_initconditions	initial.py	/^def _initconditions(net, string, v0, u0, I0, ge0):$/;"	f
-_modify_layer_weights	initial.py	/^def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):$/;"	f
-_modify_neuron_weights	initial.py	/^def _modify_neuron_weights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):$/;"	f
-_modify_weights	initial.py	/^def _modify_weights(S, dv):$/;"	f
-_network	initial.py	/^def _network(net, group):$/;"	f
-_neuron_group_index	initial.py	/^def _neuron_group_index(index_str):$/;"	f
-_neuronindices	initial.py	/^def _neuronindices(N_hidden):$/;"	f
-_neuroninitconditions	initial.py	/^def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):$/;"	f
-_number_lines	initial.py	/^def _number_lines(synapse_name_single):$/;"	f
-_read_network_weights	initial.py	/^def _read_network_weights(net, synapse_names):$/;"	f
-_read_weights	initial.py	/^def _read_weights(file_names):$/;"	f
-_readweights	initial.py	/^def _readweights(net, synapse_names):$/;"	f
-_save_network_weights	initial.py	/^def _save_network_weights(net, synapse_names):$/;"	f
-_save_single_weight	initial.py	/^def _save_single_weight(synapses, file_name):$/;"	f
-_save_weights	initial.py	/^def _save_weights(net, synapse_names):$/;"	f
-_save_weights	initial.py	/^def _save_weights(net, synapse_names, wset=0):$/;"	f
-_set_number_spikes	initial.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-_string_to_weights	initial.py	/^def _string_to_weights(string):$/;"	f
-_synapseindices	initial.py	/^def _synapseindices(N_hidden):$/;"	f
-a	xor.py	/^a = A \/ br.ms$/;"	v
-b	xor.py	/^b = B$/;"	v
-bench	xor.py	/^bench = bench$/;"	v
-bench	xor.py	/^bench='xor'$/;"	v
-c	xor.py	/^c = C*br.mV$/;"	v
-count	xor.py	/^count = 0$/;"	v
-d	xor.py	/^d = D*br.mV$/;"	v
-d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
-desired_times	xor.py	/^                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$/;"	v
-g	xor.py	/^g = 2$/;"	v
-ge0	xor.py	/^ge0 = 0*br.mV$/;"	v
-img	xor.py	/^img = np.empty(img_dims)$/;"	v
-img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
-levels	xor.py	/^    levels = 1$/;"	v
-levels	xor.py	/^levels=4$/;"	v
-make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
-net	xor.py	/^                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$/;"	v
-net	xor.py	/^net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$/;"	v
-net	xor.py	/^net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)$/;"	v
-net	xor.py	/^net = init.SetSynapseInitialWeights(net, synapse_names)$/;"	v
-neuron_groups	xor.py	/^            parameters, eqs_hidden_neurons, reset, neuron_names)$/;"	v
-neuron_names	xor.py	/^neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']$/;"	v
-number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
-objects	xor.py	/^objects = []$/;"	v
-parameters	xor.py	/^parameters = [a, b, c, d, tau, vt, vr]$/;"	v
-simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
-spike_monitor_names	xor.py	/^spike_monitor_names = ['sm_in', 'sm_liq', [], 'sm_out']$/;"	v
-spike_monitors	xor.py	/^spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)$/;"	v
-state_monitor_a	xor.py	/^state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)$/;"	v
-state_monitor_b	xor.py	/^state_monitor_b = init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)$/;"	v
-state_monitor_c	xor.py	/^state_monitor_c = init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)$/;"	v
-state_monitor_names	xor.py	/^state_monitor_names = ['out_ge', 'out_v', 'out_u']$/;"	v
-state_monitors	xor.py	/^state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]$/;"	v
-synapse_groups	xor.py	/^synapse_groups = init.SetSynapses(neuron_groups, synapse_names)$/;"	v
-synapse_names	xor.py	/^synapse_names = ['Si', 'Sl', [], 'Sb']$/;"	v
-tau	xor.py	/^tau = tau*br.ms$/;"	v
-tau	xor.py	/^tau=2.0$/;"	v
-u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$/;"	v
-u0	xor.py	/^u0 = -8.588384*br.mV$/;"	v
-v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2)) * br.mV$/;"	v
-v0	xor.py	/^v0 = vr$/;"	v
-vr	xor.py	/^vr = -74 * br.mV$/;"	v
-vr	xor.py	/^vr = -76.151418 * br.mV$/;"	v
-vt	xor.py	/^vt = -15 * br.mV$/;"	v
-weight_file	xor.py	/^weight_file = "weights.txt"$/;"	v
+A	xor.py	?^A=0.02$?;"	v
+AddNetwork	initial.py	?^def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters):$?;"	f
+AllSpikeMonitors	initial.py	?^def AllSpikeMonitors(neuron_groups, spike_monitor_names):$?;"	f
+B	xor.py	?^B=0.2$?;"	v
+C	xor.py	?^C=-65.0$?;"	v
+D	xor.py	?^D=6.0$?;"	v
+DesiredOut	train.py	?^def DesiredOut(label, bench):$?;"	f
+GetInSpikes	snn.py	?^def GetInSpikes(img, bench='LI'):$?;"	f
+I0	xor.py	?^I0 = 0*br.mV / br.ms$?;"	v
+L	train.py	?^def L(t):$?;"	f
+N	xor.py	?^    N = 1$?;"	v
+N	xor.py	?^N = 1$?;"	v
+N_h	xor.py	?^N_h = 1$?;"	v
+N_hidden	xor.py	?^N_hidden = [5]$?;"	v
+N_in	xor.py	?^N_in = 2$?;"	v
+N_liquid	xor.py	?^N_liquid = [3, 3, 8] # Total, liquid in, liquid out$?;"	v
+N_o	xor.py	?^N_o = 1$?;"	v
+N_out	xor.py	?^N_out = 1$?;"	v
+OutputTimeRange	initial.py	?^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$?;"	f
+P_Index	snn.py	?^def P_Index(S_d, S_l):$?;"	f
+P_Index	train.py	?^def P_Index(S_l, S_d):$?;"	f
+Pc	xor.py	?^Pc = 0.05$?;"	v
+PickWeightIndexA	train.py	?^def PickWeightIndexA(Sa, S_hidden, S_out):$?;"	f
+PickWeightIndicesB	train.py	?^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$?;"	f
+Plot	snn.py	?^def Plot(monitor, number):$?;"	f
+ReSuMe	train.py	?^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$?;"	f
+ReadImg	snn.py	?^def ReadImg(number=1, letter=None, bench='LI', levels=None):$?;"	f
+ReadTimes	initial.py	?^def ReadTimes(file_name):$?;"	f
+ReadTimes	train.py	?^def ReadTimes(filename):$?;"	f
+Run	snn.py	?^    state_monitor_names, spike_monitor_names, parameters, number):$?;"	f
+SetInitStates	initial.py	?^def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):$?;"	f
+SetNeuronGroups	initial.py	?^        eqs_hidden_neurons, reset, neuron_names):$?;"	f
+SetSynapseInitialWeights	initial.py	?^def SetSynapseInitialWeights(net, synapse_names):$?;"	f
+SetSynapses	initial.py	?^def SetSynapses(neuron_groups, synapse_names):$?;"	f
+SetWeights	initial.py	?^         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$?;"	f
+SpikeMonitor	initial.py	?^def SpikeMonitor(neuron_groups, index_str):$?;"	f
+SpikeSlopes	train.py	?^def SpikeSlopes(Mv, S_out, d_i=3):$?;"	f
+StateMonitors	initial.py	?^def StateMonitors(neuron_groups, index_str, index_record=0):$?;"	f
+T	xor.py	?^T = 40$?;"	v
+TestNodeRange	initial.py	?^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$?;"	f
+TestNodeRange	train.py	?^        parameters, number, net)$?;"	f
+WeightChange	train.py	?^def WeightChange(s):$?;"	f
+_basic_training	initial.py	?^def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$?;"	f
+_check_number_spikes	initial.py	?^def _check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_monitor_names):$?;"	f
+_collect_spikes	initial.py	?^def _collect_spikes(indices, spikes, N_neurons):$?;"	f
+_compatible_dimensions	initial.py	?^def _compatible_dimensions(net, synapse_name_single):$?;"	f
+_correct_weights_exist	initial.py	?^def _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):$?;"	f
+_initconditions	initial.py	?^def _initconditions(net, string, v0, u0, I0, ge0):$?;"	f
+_modify_layer_weights	initial.py	?^def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):$?;"	f
+_modify_neuron_weights	initial.py	?^def _modify_neuron_weights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):$?;"	f
+_modify_weights	initial.py	?^def _modify_weights(S, dv):$?;"	f
+_network	initial.py	?^def _network(net, group):$?;"	f
+_neuron_group_index	initial.py	?^def _neuron_group_index(index_str):$?;"	f
+_neuronindices	initial.py	?^def _neuronindices(N_hidden):$?;"	f
+_neuroninitconditions	initial.py	?^def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):$?;"	f
+_number_lines	initial.py	?^def _number_lines(synapse_name_single):$?;"	f
+_read_network_weights	initial.py	?^def _read_network_weights(net, synapse_names):$?;"	f
+_read_weights	initial.py	?^def _read_weights(file_names):$?;"	f
+_readweights	initial.py	?^def _readweights(net, synapse_names):$?;"	f
+_save_network_weights	initial.py	?^def _save_network_weights(net, synapse_names):$?;"	f
+_save_single_weight	initial.py	?^def _save_single_weight(synapses, file_name):$?;"	f
+_save_weights	initial.py	?^def _save_weights(net, synapse_names, a, b):$?;"	f
+_save_weights_meta	initial.py	?^def _save_weights_meta(net, synapse_names, wset=None):$?;"	f
+_set_number_spikes	initial.py	?^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$?;"	f
+_string_to_weights	initial.py	?^def _string_to_weights(string):$?;"	f
+_synapseindices	initial.py	?^def _synapseindices(N_hidden):$?;"	f
+a	xor.py	?^a = A / br.ms$?;"	v
+b	xor.py	?^b = B$?;"	v
+bench	xor.py	?^bench = bench$?;"	v
+bench	xor.py	?^bench='xor'$?;"	v
+c	xor.py	?^c = C*br.mV$?;"	v
+count	xor.py	?^count = 0$?;"	v
+d	xor.py	?^d = D*br.mV$?;"	v
+d_w	snn.py	?^def d_w(S_d, S_l, S_in):$?;"	f
+desired_times	xor.py	?^                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$?;"	v
+g	xor.py	?^g = 2$?;"	v
+ge0	xor.py	?^ge0 = 0*br.mV$?;"	v
+img	xor.py	?^img = np.empty(img_dims)$?;"	v
+img_dims	xor.py	?^    img_dims = (1, 2)$?;"	v
+levels	xor.py	?^    levels = 1$?;"	v
+levels	xor.py	?^levels=4$?;"	v
+make2dList	snn.py	?^def make2dList(rows, cols):$?;"	f
+net	xor.py	?^                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$?;"	v
+net	xor.py	?^net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$?;"	v
+net	xor.py	?^net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)$?;"	v
+net	xor.py	?^net = init.SetSynapseInitialWeights(net, synapse_names)$?;"	v
+neuron_groups	xor.py	?^            parameters, eqs_hidden_neurons, reset, neuron_names)$?;"	v
+neuron_names	xor.py	?^neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']$?;"	v
+number	xor.py	?^number = 1 #number of hidden_neurons$?;"	v
+objects	xor.py	?^objects = []$?;"	v
+parameters	xor.py	?^parameters = [a, b, c, d, tau, vt, vr]$?;"	v
+simtime	xor.py	?^simtime = 1 #duration of the simulation in s$?;"	v
+spike_monitor_names	xor.py	?^spike_monitor_names = ['sm_in', 'sm_liq', [], 'sm_out']$?;"	v
+spike_monitors	xor.py	?^spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)$?;"	v
+state_monitor_a	xor.py	?^state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)$?;"	v
+state_monitor_b	xor.py	?^state_monitor_b = init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)$?;"	v
+state_monitor_c	xor.py	?^state_monitor_c = init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)$?;"	v
+state_monitor_names	xor.py	?^state_monitor_names = ['out_ge', 'out_v', 'out_u']$?;"	v
+state_monitors	xor.py	?^state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]$?;"	v
+synapse_groups	xor.py	?^synapse_groups = init.SetSynapses(neuron_groups, synapse_names)$?;"	v
+synapse_names	xor.py	?^synapse_names = ['Si', 'Sl', [], 'Sb']$?;"	v
+tau	xor.py	?^tau = tau*br.ms$?;"	v
+tau	xor.py	?^tau=2.0$?;"	v
+u0	xor.py	?^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$?;"	v
+u0	xor.py	?^u0 = -8.588384*br.mV$?;"	v
+v0	xor.py	?^v0 = (25*(-5 + A**2 * B**2)) * br.mV$?;"	v
+v0	xor.py	?^v0 = vr$?;"	v
+vr	xor.py	?^vr = -74 * br.mV$?;"	v
+vr	xor.py	?^vr = -76.151418 * br.mV$?;"	v
+vt	xor.py	?^vt = -15 * br.mV$?;"	v
+weight_file	xor.py	?^weight_file = "weights.txt"$?;"	v
