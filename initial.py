@@ -609,22 +609,22 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 
     #pudb.set_trace()
     if False and _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
-        net = _readweights(net, synapse_names)
+        net = _readweights(net, synapse_names, 0, len(synapse_names))
     elif False and _correct_weights_exist(net, synapse_names[:-1], N_liquid, N_hidden):
-        net = _readweights(net, synapse_names[:-1])
+        net = _readweights(net, synapse_names[:-1], 0, len(synapse_names) - 1)
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-        _save_weights(net, synapse_names[-1])
+        _save_weights(net, synapse_names[-1], len(synapse_names) - 1, len(synapse_names))
     else:
         net = set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights_meta(net, synapse_names, 0)
+        _save_weights_meta(net, synapse_names, 0, len(synapse_names)-1)
 
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights_meta(net, synapse_names, 1)
+        _save_weights_meta(net, synapse_names, len(synapse_names)-1, len(synapse_names))
 
 
     return net
