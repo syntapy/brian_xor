@@ -9,9 +9,9 @@ def DesiredOut(label, bench):
 
     if bench == 'xor':
         if label == 1:
-            return_val = 0*br.ms
+            return_val = 1*br.ms
         else:
-            return_val = 6*br.ms
+            return_val = 7*br.ms
 
     return return_val
 
@@ -95,7 +95,7 @@ def TestNodeRange(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor
 
     return return_val
 
-def ReSuMe(net, desired_times, Pc, T, N, v0, u0, I0, ge0, \
+def ReSuMe(desired_times, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     img, label = snn.ReadImg(number=number, bench=bench)
@@ -112,24 +112,33 @@ def ReSuMe(net, desired_times, Pc, T, N, v0, u0, I0, ge0, \
 
             #pudb.set_trace()
             #print "\t\ti = ", i
-            label = snn.Run(T, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, \
-                Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
+            label = snn.Run(net, T, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, \
+                        spike_monitor_names, parameters, number)
 
-            print "Hidden Times: ", 
-            for j in range(len(S_hidden)):
-                print S_hidden[j].spiketimes, " ", 
+            #print "Hidden Times: ", 
+            #for j in range(len(S_hidden)):
+            #    print S_hidden[j].spiketimes, " ", 
 
-            print "\nOutput Times: ", S_out.spiketimes
-            done = snn.CheckNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+            #print "\nOutput Times: ", S_out.spiketimes
+            right_spike_numbers = init.check_number_spikes(net, layer, \
+                        T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, spike_monitor_names)
 
-            if done == False:
+            if right_spike_numbers == False:
                 print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
                 #pudb.set_trace()
-                snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
+                init.set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
+                        parameters)
+
             #pudb.set_trace()
-            S_l = S_out.spiketimes
-            S_i = S_hidden[-1].spiketimes
-            S_d = desired_times[label]
+            indices_l, spikes_l = net[spike_monitor_names[-1]]
+            indices_i, spikes_i = net[spike_monitor_names[-2][-1]]
+            S_l = init.collect_spikes(indices_l, spikes_l, N_hidden[-1])
+            S_i = init.collect_spikes(indices_i, spikes_i, )
+            #S_l = S_out.spiketimes
+            S_d = desired_times
 
             P = P_Index(S_l, S_d)
             print "\t\t\tP = ", P

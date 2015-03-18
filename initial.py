@@ -297,7 +297,7 @@ def _modify_weights(S, dv):
 
     return S
 
-def _collect_spikes(indices, spikes, N_neurons):
+def collect_spikes(indices, spikes, N_neurons):
     """
     This takes the indices and spike times from the spike monitor and produces a dictionary
     """
@@ -318,7 +318,8 @@ def _collect_spikes(indices, spikes, N_neurons):
 
     return spikes_list
 
-def _check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, spike_monitor_names):
+def check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
+        neuron_names, spike_monitor_names):
 
     """
     Returns True if each hidden neuron is emmitting N_h spikes
@@ -398,14 +399,14 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
 
     indices, spikes = spike_monitor.it
     #pudb.set_trace()
-    spikes = _collect_spikes(indices, spikes, N_neurons)
+    spikes = collect_spikes(indices, spikes, N_neurons)
     net.restore(str(number))
     modified, net = _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes)
     net.store(str(number))
 
     return modified, net
 
-def _set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
+def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
     """
     This sets the number of spikes in the last hidden layer, and in the output layer, to
@@ -455,16 +456,17 @@ def _set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
 
         # Loop over the different input values
         for number in range(4):
-            desired_spikes = False
+            has_desired_spike_number = False
             print "\t\tNumber = ", number, "\t"
-            while desired_spikes == False:
+            while has_desired_spike_number == False:
                 #pudb.set_trace()
                 snn.Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters, number)
 
                 print "\t\t\tk = ", k
                 #pudb.set_trace()
-                desired_spikes = _check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
+                has_desired_spike_number = check_number_spikes(net, layer, T, N_h, N_o, \
+                        v0, u0, I0, ge0, \
                         neuron_names, spike_monitor_names)
 
                 if layer == 0:
@@ -502,7 +504,7 @@ def _save_weights(net, synapse_names):
             file_name = 'weights/' + synapse_names[i] + '.txt'
             _save_single_weight(synapse, file_name)
 
-def _save_weights(net, synapse_names, wset=0):
+def _save_weights(net, synapse_names, wset):
     if wset == 0:
         _save_weights(net, synapse_names[:-1])
     elif wset == 1:
@@ -521,6 +523,7 @@ def _string_to_weights(string):
         weights[i] = float(string[i][:-1])
 
     return weights
+
 def _read_weights(file_names):
     weight_list = []
     for i in range(len(synapse_names)):
@@ -608,16 +611,16 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         net = _readweights(net, synapse_names)
     elif _correct_weights_exist(net, synapse_names[:-1], N_liquid, N_hidden):
         net = _readweights(net, synapse_names[:-1])
-        net = _set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
+        net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
         _save_weights(net, synapse_names[-1])
     else:
-        net = _set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
+        net = set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
         _save_weights(net, synapse_names, 0)
 
-        net = _set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
+        net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
         _save_weights(net, synapse_names, 1)
@@ -664,7 +667,7 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
         #pudb.set_trace()
 
         indices, spikes = net[spike_monitor_names[3]].it
-        spikes_out = _collect_spikes(indices, spikes, 1)
+        spikes_out = collect_spikes(indices, spikes, 1)
         #spikes_hidden = S_hidden.spiketimes[0]
         n_outspikes = len(spikes_out)
         print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
