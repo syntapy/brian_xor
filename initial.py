@@ -488,7 +488,7 @@ def _save_single_weight(synapses, file_name):
     F = open(file_name, 'w')
     n = len(synapses.w[:])
     for i in range(n):
-        F.write(synapses.w[i])
+        F.write(str(synapses.w[i]))
         F.write('\n')
     F.close()
 
@@ -570,24 +570,27 @@ def _number_lines(synapse_name_single):
     return i + 1
 
 def _compatible_dimensions(net, synapse_name_single):
-    n_f = _number_lines(synapse_name_single)
+    file_name = 'weights/' + synapse_name_single + '.txt'
+    n_f = _number_lines(file_name)
     n_net = len(net[synapse_name_single].w[:])
 
     return n_f == n_net
 
-def _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
+def _correct_weights_exist(net, synapse_names, a, b):
 
-    for i in range(len(synapse_names)):
+    for i in range(a, b):
         if type(synapse_names[i]) == list:
             for j in range(len(synapse_names[i])):
-                if op.isfile(synapse_names[i][j]) == False:
+                file_name = 'weights/' + synapse_names[i][j] + '.txt'
+                if op.isfile(file_name) == False:
                     return False
                 elif _compatible_dimensions(net, synapse_names[i][j]) == False:
                     return False
         else:
-            if op.isfile(synapse_names[i]) == False:
+            file_name = 'weights/' + synapse_names[i] + '.txt'
+            if op.isfile(file_name) == False:
                 return False
-            elif _compatible_dimensions(net, synapse_names[i][j]) == False:
+            elif _compatible_dimensions(net, synapse_names[i]) == False:
                 return False
 
     return True
@@ -608,10 +611,10 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
          neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     #pudb.set_trace()
-    if False and _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
+    if _correct_weights_exist(net, synapse_names, 0, len(synapse_names)):
         net = _readweights(net, synapse_names, 0, len(synapse_names))
-    elif False and _correct_weights_exist(net, synapse_names[:-1], N_liquid, N_hidden):
-        net = _readweights(net, synapse_names[:-1], 0, len(synapse_names) - 1)
+    elif _correct_weights_exist(net, synapse_names, 0, len(synapse_names)-1):
+        net = _readweights(net, synapse_names[:-1], 0, len(synapse_names)-1)
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
         _save_weights(net, synapse_names[-1], len(synapse_names) - 1, len(synapse_names))
@@ -619,14 +622,15 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         net = set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights_meta(net, synapse_names, 0, len(synapse_names)-1)
+        _save_weights(net, synapse_names, 0, len(synapse_names)-1)
 
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        _save_weights_meta(net, synapse_names, len(synapse_names)-1, len(synapse_names))
+        _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
 
 
+    pudb.set_trace()
     return net
 
 #SetNeuronGroups
