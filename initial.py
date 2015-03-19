@@ -3,6 +3,7 @@ import brian2 as br
 import numpy as np
 import pudb
 import snn
+
 def _neuronindices(N_hidden):
     """
         Nin, Nli, Nlh, Nlo, N_liq, Nhid, Nout
@@ -98,9 +99,10 @@ def SetSynapseInitialWeights(net, synapse_names):
     net[synapse_names[0]].delay='(0)*ms'
 
     net[synapse_names[1]].connect(True)
-    net[synapse_names[1]].w[:,:]='6.2*rand()'
+    net[synapse_names[1]].w[:,:]='9.2*(0.5+ 0.5*rand())'
     net[synapse_names[1]].delay='3*rand()*ms'
 
+    #pudb.set_trace()
     for i in range(len(synapse_names[2])):
         net[synapse_names[2][i]].connect(True)
         net[synapse_names[2][i]].w[:, :]='15.1*(0.5+0.5*rand())'
@@ -118,10 +120,20 @@ def SetSynapseInitialWeights(net, synapse_names):
     7:                 2
     8:                 
     """
-    net[synapse_names[2][-1]].w[:, :]='15.1*(0.2+0.5*rand())'
+    #N_synapses = len(net[synapse_names[2][-1]])
+    #N_neurons = 5#len(net[neuron_names[3]])
+
+    #for i in range(0, N_synapses, N_synapses / N_neurons):
+    #n = len(net[synapse_names[2][-1]].w[:, 0])
+    #A = net[synapse_names[2][-1]].w
+    #for i in range(n):
+    #    net[synapse_names[2][-1]].w[i, 0] = '7.5'
+    #pudb.set_trace()
+
+    #net[synapse_names[2][-1]].w[:, :]='15.1*(0.2+0.5*rand())'
     #net[synapse_names[2][-1]].w[9] = 10
     net[synapse_names[-1]].connect(True)
-    net[synapse_names[-1]].w[:, :]='0.9*(0.1+0.2*rand())'
+    net[synapse_names[-1]].w[:, :]='1.9*(0.5+0.5*rand())'
     net[synapse_names[-1]].delay='(0)*ms'
 
     return net
@@ -320,6 +332,31 @@ def collect_spikes(indices, spikes, N_neurons):
 
     return spikes_list
 
+def _same_num_spikes(indices):
+    n = len(indices)
+
+    #pudb.set_trace()
+    if n == 0 or n == 1:
+        return True
+
+    indices = np.sort(indices)
+    q = indices[0]
+    count, count_new = -1, 1
+    for i in xrange(1, len(indices)):
+        if indices[i] == q:
+            count_new += 1
+        elif count == -1:
+            count = count_new
+            count = 1
+        elif count != count_new:
+            return False
+        else: count_new = 1
+
+    if count != -1 and count != count_new:
+        return False
+
+    return True
+
 def check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
         neuron_names, spike_monitor_names):
 
@@ -331,6 +368,7 @@ def check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
     N_out_spikes = []
     N_hidden_spikes = []
 
+    # Maybe not good idea to do this on all hidden layers
     N_hidden = len(neuron_names[2])
     N_out = 1
 
@@ -339,33 +377,31 @@ def check_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
             hidden_layer = net[neuron_names[2][i]]
             spike_monitor = net[spike_monitor_names[2][i]]
             indices, spikes = spike_monitor.it
-            if len(indices) == 0:
-                if N_h > 0:
-                    return False
-            else:
-                indices = br.unique(indices)
-                if len(indices) != N_h*len(hidden_layer):
-                    return False
+            if len(indices) != N_h*len(hidden_layer):
+                return False
+            if _same_num_spikes(indices) == False:
+                return False
 
     else:
         output_layer = net[neuron_names[3]]
         spike_monitor = net[spike_monitor_names[3]]
         indices, spikes = spike_monitor.it
-        if len(indices) == 0:
-            if N_o > 0:
-                return False
-        else:
-            indicies = br.unique(indices)
-            if len(indices) != N_o*len(output_layer):
-                return False
+        if len(indices) != N_o*len(output_layer):
+            return False
+        if _same_num_spikes(indices) == False:
+            return False
 
     return True
 
 def _modify_neuron_weights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):
     N_neurons = len(net[neuron_str])
     N_synapses = len(net[synapse_str])
-    for i in range(neuron_index, N_synapses, N_synapses / N_neurons):
-        net[synapse_str].w[i] += dv*br.random()
+    A = net[synapse_str].w
+    #pudb.set_trace()
+    #for i in range(neuron_index):#, N_synapses, N_synapses / N_neurons):
+    n = len(A[:, neuron_index])
+    for i in range(n):
+        net[synapse_str].w[i, neuron_index] += dv*br.rand()
 
     return net
 
@@ -377,13 +413,15 @@ def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, 
         index = 0
     else:
         index = number
-    #pudb.set_trace()
+
     for i in range(index, N_neurons, 4):
         for j in range(N_neurons):
             if len(spikes[j]) > D_spikes:
+                #pudb.set_trace()
                 modified = True
                 net = _modify_neuron_weights(net, neuron_str, synapse_str, j, -dw_abs, N_neurons)
             elif len(spikes[j]) < D_spikes:
+                #pudb.set_trace()
                 modified = True
                 net = _modify_neuron_weights(net, neuron_str, synapse_str, j, dw_abs, N_neurons)
 
@@ -401,6 +439,7 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
 
     indices, spikes = spike_monitor.it
     #pudb.set_trace()
+    print spikes, "\t", indices
     spikes = collect_spikes(indices, spikes, N_neurons)
     net.restore(str(number))
     modified, net = _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes)
@@ -443,7 +482,7 @@ def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
         dw_abs = 0.5
         #right_dw_abs = True
     else:
-        dw_abs = 0.0005
+        dw_abs = 0.5
         #div = 0
     modified = True
     j = 0
@@ -458,18 +497,22 @@ def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
 
         # Loop over the different input values
         for number in range(4):
-            has_desired_spike_number = False
+            #has_desired_spike_number = False
             print "\t\tNumber = ", number, "\t"
-            while has_desired_spike_number == False:
+            while True:
                 #pudb.set_trace()
                 snn.Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters, number)
 
-                print "\t\t\tk = ", k
+                print "\t\t\tk = ", k, "\t",
+
                 #pudb.set_trace()
-                has_desired_spike_number = check_number_spikes(net, layer, T, N_h, N_o, \
-                        v0, u0, I0, ge0, \
-                        neuron_names, spike_monitor_names)
+                #has_desired_spike_number = check_number_spikes(net, layer, \
+                #        T, N_h, N_o, v0, u0, I0, ge0, \
+                #        neuron_names, spike_monitor_names)
+
+                #if has_desired_spike_number:
+                #    break
 
                 if layer == 0:
                     k_modified, net = _basic_training(net, \
@@ -482,6 +525,9 @@ def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
 
                 if k_modified == True:
                     modified = True
+                else:
+                    break
+
                 k += 1
     return net
 
@@ -534,9 +580,9 @@ def _string_to_weights(string, unit):
 
     return weights*unit
 
-def _read_weights(synapse_names):
+def _read_weights(synapse_names, a, b):
     weight_list, delay_list = [], []
-    for i in range(len(synapse_names)):
+    for i in range(a, b):
         if type(synapse_names[i]) == list:
             weight_list.append([])
             delay_list.append([])
@@ -627,7 +673,7 @@ def _correct_weights_exist(net, synapse_names, a, b):
 def _readweights(net, synapse_names, a, b):
 
     #pudb.set_trace()
-    weights, delays = _read_weights(synapse_names)
+    weights, delays = _read_weights(synapse_names, a, b)
     for i in range(a, b):
         if type(synapse_names[i]) == list:
             for j in range(len(synapse_names[i])):
@@ -649,7 +695,7 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         net = _readweights(net, synapse_names, 0, len(synapse_names)-1)
         net = set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-        _save_weights(net, synapse_names[-1], len(synapse_names) - 1, len(synapse_names))
+        _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
     else:
         net = set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
