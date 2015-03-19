@@ -48,7 +48,7 @@ TestNodeRange	train.py	/^        parameters, number, net)$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
 _basic_training	initial.py	/^def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$/;"	f
 _compatible_dimensions	initial.py	/^def _compatible_dimensions(net, synapse_name_single):$/;"	f
-_correct_weights_exist	initial.py	/^def _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):$/;"	f
+_correct_weights_exist	initial.py	/^def _correct_weights_exist(net, synapse_names, a, b):$/;"	f
 _initconditions	initial.py	/^def _initconditions(net, string, v0, u0, I0, ge0):$/;"	f
 _modify_layer_weights	initial.py	/^def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes):$/;"	f
 _modify_neuron_weights	initial.py	/^def _modify_neuron_weights(net, neuron_str, synapse_str, neuron_index, dv, N_neurons):$/;"	f
@@ -60,12 +60,12 @@ _neuroninitconditions	initial.py	/^def _neuroninitconditions(net, neuron_names, 
 _number_lines	initial.py	/^def _number_lines(synapse_name_single):$/;"	f
 _read_network_weights	initial.py	/^def _read_network_weights(net, synapse_names):$/;"	f
 _read_weights	initial.py	/^def _read_weights(synapse_names):$/;"	f
-_readweights	initial.py	/^def _readweights(net, synapse_names):$/;"	f
+_readweights	initial.py	/^def _readweights(net, synapse_names, a, b):$/;"	f
 _save_network_weights	initial.py	/^def _save_network_weights(net, synapse_names):$/;"	f
 _save_single_weight	initial.py	/^def _save_single_weight(synapses, file_name_w, file_name_d):$/;"	f
 _save_weights	initial.py	/^def _save_weights(net, synapse_names, a, b):$/;"	f
 _save_weights_meta	initial.py	/^def _save_weights_meta(net, synapse_names, wset=None):$/;"	f
-_string_to_weights	initial.py	/^def _string_to_weights(string):$/;"	f
+_string_to_weights	initial.py	/^def _string_to_weights(string, unit):$/;"	f
 _synapseindices	initial.py	/^def _synapseindices(N_hidden):$/;"	f
 a	xor.py	/^a = A \/ br.ms$/;"	v
 b	xor.py	/^b = B$/;"	v
