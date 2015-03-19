@@ -300,7 +300,9 @@ def _modify_weights(S, dv):
 def collect_spikes(indices, spikes, N_neurons):
     """
     This takes the indices and spike times from the spike monitor and produces a dictionary
+    of the form [[ta1, ta2, ...], [tb1, tb2, ...], ...]
     """
+
     spikes_hidden = []
     spikes_out = []
 
@@ -483,12 +485,15 @@ def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
                 k += 1
     return net
 
-def _save_single_weight(synapses, file_name):
+def _save_single_weight(synapses, file_name_w, file_name_d):
 
-    F = open(file_name, 'w')
+    F = open(file_name_w, 'w')
+    G = open(file_name_d, 'w')
     n = len(synapses.w[:])
     for i in range(n):
-        F.write(synapses.w[i])
+        F.write(str(synapses.w[i]))
+        F.write('\n')
+        F.write(str(synapses.delay[:][i] / br.msecond))
         F.write('\n')
     F.close()
 
@@ -497,13 +502,15 @@ def _save_weights(net, synapse_names, a, b):
         if type(synapse_names[i]) == list:
             for j in range(len(synapse_names[i])):
                 synapse = net[synapse_names[i][j]]
-                file_name = 'weights/' + synapse_names[i][j] + '.txt'
-                _save_single_weight(synapse, file_name)
+                file_name_w = 'weights/' + synapse_names[i][j] + '_w.txt'
+                file_name_d = 'weights/' + synapse_names[i][j] + '_d.txt'
+                _save_single_weight(synapse, file_name_w, file_name_d)
         else:
             #pudb.set_trace()
             synapse = net[synapse_names[i]]
-            file_name = 'weights/' + synapse_names[i] + '.txt'
-            _save_single_weight(synapse, file_name)
+            file_name_w = 'weights/' + synapse_names[i] + '_w.txt'
+            file_name_d = 'weights/' + synapse_names[i] + '_d.txt'
+            _save_single_weight(synapse, file_name_w, file_name_d)
 
 def _save_weights_meta(net, synapse_names, wset=None):
     if wset == 0:
@@ -525,25 +532,36 @@ def _string_to_weights(string):
 
     return weights
 
-def _read_weights(file_names):
-    weight_list = []
+def _read_weights(synapse_names):
+    weight_list, delay_list = [], []
     for i in range(len(synapse_names)):
         if type(synapse_names[i]) == list:
-            string.append([])
+            weight_list.append([])
+            delay_list.append([])
             for j in range(len(synapse_names[i])):
-                file_name = 'weights/' + synapse_names[i][j] + '.txt'
-                F = open(file_name, 'r')
+                file_name_w = 'weights/' + synapse_names[i][j] + '_w.txt'
+                file_name_d = 'weights/' + synapse_names[i][j] + '_d.txt'
+                F = open(file_name_w, 'r')
+                G = open(file_name_d, 'r')
                 weight_array = _string_to_weights(F.readlines())
+                delay_array = _string_to_weights(G.readlines())
                 weight_list[i].append(weight_array)
+                delay_list[i].append(delay_array)
                 F.close()
+                G.close()
         else:
-            file_name = 'weights/' + synapse_names[i] + '.txt'
-            F = open(file_name, 'r')
+            file_name_w = 'weights/' + synapse_names[i] + '_w.txt'
+            file_name_d = 'weights/' + synapse_names[i] + '_d.txt'
+            F = open(file_name_w, 'r')
+            G = open(file_name_d, 'r')
             weight_array = _string_to_weights(F.readlines())
-            weight_list.append(weight_array)
+            delay_array = _string_to_weights(G.readlines())
+            weight_list[i].append(weight_array)
+            delay_list[i].append(delay_array)
             F.close()
+            G.close()
 
-    return weight_list
+    return br.array(weight_list), br.array(delay_list)*br.msecond
 
 def _save_network_weights(net, synapse_names):
     for i in range(len(synapse_names)):
@@ -557,7 +575,7 @@ def _read_network_weights(net, synapse_names):
     for i in xrange(len(synapse_names)):
         if type(synapse_names[i]) == list:
             for j in xrange(len(synapse_names[i])):
-                net[synapse_names[i][j]].w[:] = _read_weights('weights/' + synapse_names[i][j] + '.txt')
+                net[synapse_names[i][j]].w[:], net[synapse_names[i][j]].delay[:] = _read_weights('weights/' + synapse_names[i][j] + '.txt')
         else:
             net[synapse_names[i]].w[:] = _read_weights('weights/' + synapse_names[i] + '.txt')
 
@@ -594,7 +612,7 @@ def _correct_weights_exist(net, synapse_names, N_liquid, N_hidden):
 
 def _readweights(net, synapse_names):
 
-    weights = _read_weights(synapse_Names)
+    weights, delays = _read_weights(synapse_names)
     for i in range(len(synapse_names)):
         if type(synapse_names[i]) == list:
             for j in range(len(synapse_names)):

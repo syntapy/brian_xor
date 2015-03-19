@@ -135,10 +135,10 @@ def ReSuMe(desired_times, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0,
             #pudb.set_trace()
             indices_l, spikes_l = net[spike_monitor_names[-1]]
             indices_i, spikes_i = net[spike_monitor_names[-2][-1]]
-            S_l = init.collect_spikes(indices_l, spikes_l, N_hidden[-1])
-            S_i = init.collect_spikes(indices_i, spikes_i, )
+            S_l = init.collect_spikes(indices_l, spikes_l, 1)
+            S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
             #S_l = S_out.spiketimes
-            S_d = desired_times
+            S_d = desired_time
 
             P = P_Index(S_l, S_d)
             print "\t\t\tP = ", P
