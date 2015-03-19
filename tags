@@ -59,12 +59,12 @@ _neuronindices	initial.py	/^def _neuronindices(N_hidden):$/;"	f
 _neuroninitconditions	initial.py	/^def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):$/;"	f
 _number_lines	initial.py	/^def _number_lines(synapse_name_single):$/;"	f
 _read_network_weights	initial.py	/^def _read_network_weights(net, synapse_names):$/;"	f
-_read_weights	initial.py	/^def _read_weights(file_names):$/;"	f
+_read_weights	initial.py	/^def _read_weights(synapse_names):$/;"	f
 _readweights	initial.py	/^def _readweights(net, synapse_names):$/;"	f
 _save_network_weights	initial.py	/^def _save_network_weights(net, synapse_names):$/;"	f
-_save_single_weight	initial.py	/^def _save_single_weight(synapses, file_name):$/;"	f
-_save_weights	initial.py	/^def _save_weights(net, synapse_names):$/;"	f
-_save_weights	initial.py	/^def _save_weights(net, synapse_names, wset=0):$/;"	f
+_save_single_weight	initial.py	/^def _save_single_weight(synapses, file_name_w, file_name_d):$/;"	f
+_save_weights	initial.py	/^def _save_weights(net, synapse_names, a, b):$/;"	f
+_save_weights_meta	initial.py	/^def _save_weights_meta(net, synapse_names, wset=None):$/;"	f
 _string_to_weights	initial.py	/^def _string_to_weights(string):$/;"	f
 _synapseindices	initial.py	/^def _synapseindices(N_hidden):$/;"	f
 a	xor.py	/^a = A \/ br.ms$/;"	v
