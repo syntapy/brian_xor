@@ -166,8 +166,8 @@ net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
 net = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-#desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
-#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
+                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 #
 #net = train.ReSuMe(desired_times[0], net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 #                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)

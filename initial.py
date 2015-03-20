@@ -323,12 +323,13 @@ def collect_spikes(indices, spikes, N_neurons):
     j = 0
     arg_sort = br.argsort(indices)
     sorted_indices = br.sort(indices)
-    for i in range(N_neurons):
-        spikes_list.append([])
+    if len(indices) > 0:
+        for i in range(N_neurons):
+            spikes_list.append([])
 
-    for i in range(len(sorted_indices)):
-        index = arg_sort[i]
-        spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
+        for i in range(len(sorted_indices)):
+            index = arg_sort[i]
+            spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
 
     return spikes_list
 
@@ -740,6 +741,7 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
     #pudb.set_trace()
     #old_weights[:] = net[synapse_names[3]].w[:]
     net[synapse_names[3]].w[:] = np.zeros(n_hidden_last, dtype=float)
+    net[synapse_names[3]].w[0, 0] = 5
     net.store('5')
 
     j = 0
@@ -766,8 +768,12 @@ def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
             #pudb.set_trace()
             break
 
-        net[synapse_names[3]].w[0] = net[synapse_names[3]].w[0] + 0.0001
-        print "\tj = ", j
+        net.restore('5')
+        net[synapse_names[3]].w[0, 0] = net[synapse_names[3]].w[0, 0] + 0.5
+        net.store('5')
+        print "\tj = ", j,
+        print "\t\t", net[synapse_names[3]].w[0, 0]
+        print "\t\t\t", spikes_out
         j += 1
 
     net.restore('4')
