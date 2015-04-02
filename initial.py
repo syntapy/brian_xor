@@ -324,12 +324,16 @@ def collect_spikes(indices, spikes, N_neurons):
     arg_sort = br.argsort(indices)
     sorted_indices = br.sort(indices)
     if len(indices) > 0:
-        for i in range(N_neurons):
-            spikes_list.append([])
+        if N_neurons > 1:
+            for i in range(N_neurons):
+                spikes_list.append([])
 
-        for i in range(len(sorted_indices)):
-            index = arg_sort[i]
-            spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
+            for i in range(len(sorted_indices)):
+                index = arg_sort[i]
+                spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
+        else:
+            for i in range(len(sorted_indices)):
+                spikes_list.append(spikes[arg_sort[i]])
 
     return spikes_list
 
@@ -448,8 +452,7 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
 
     return modified, net
 
-def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
+def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
     """
     This sets the number of spikes in the last hidden layer, and in the output layer, to
     N_h and N_o, respectively
@@ -721,80 +724,140 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 #SetWeights
 #OutputTimeRange
 
-
 def ReadTimes(file_name):
     F = open(file_name, 'r') 
     strings = F.readlines()
     desired_times = [-1, -1]
-    desired_times[0] = strings[0]
+    desired_times[0] = float(strings[0][:-1])*br.second
+    desired_times[1] = float(strings[1][:-1])*br.second
     F.close()
 
-def TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
+def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):
 
-    net.restore('4')
+    indices, spikes = net[spike_monitor_names[3]].it
+    spikes_out = collect_spikes(indices, spikes, 1)
+    n_outspikes = len(spikes_out)
+
+    return n_outspikes, spikes_out
+
+def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):
+
     n_hidden_last = len(net[neuron_names[2][-1]])
     old_weights = np.empty(n_hidden_last)
 
     extreme_spikes = [-1, -1]
 
-    #pudb.set_trace()
-    #old_weights[:] = net[synapse_names[3]].w[:]
+    w_last = 1
     net[synapse_names[3]].w[:] = np.zeros(n_hidden_last, dtype=float)
-    net[synapse_names[3]].w[0, 0] = 5
+    net[synapse_names[3]].w[0, 0] = w_last
     net.store('5')
 
     j = 0
-    print "Determining spike-time range:"
+    print "\tDetermining weight range:"
     while True:
 
+        net = snn.Run(net, 2*T, v0, u0, I0, ge0, neuron_names, synapse_names, \
+                state_monitor_names, spike_monitor_names, \
+                parameters, number)
+
+        n_outspikes, spikes_out = GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, \
+                    state_monitor_names, spike_monitor_names, \
+                    parameters, number=5)
+
+        print "\t\tj, w, n_outspikes = ", j, ", ", net[synapse_names[3]].w[0, 0][0], ", ", n_outspikes
+        print "\t\t\tspikes_out",  spikes_out
+        if n_outspikes < num_spikes:
+            w_last = net[synapse_names[3]].w[0, 0]
+
+            net.restore('5')
+            w_new = 2*net[synapse_names[3]].w[0, 0] 
+            net[synapse_names[3]].w[0, 0] = w_new
+            net.store('5')
+        elif n_outspikes == num_spikes:
+            net.restore('5')
+            w_new = 1.2*net[synapse_names[3]].w[0, 0] 
+            net[synapse_names[3]].w[0, 0] = w_new
+            net.store('5')
+        elif n_outspikes > num_spikes:
+            break
+
+        j += 1
+
+    w_low, w_high = w_last, net[synapse_names[3]].w[0, 0]
+
+    return net, w_low, w_high
+
+def BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_names, synapse_names, \
+        state_monitor_names, spike_monitor_names, parameters, end='low'):
+
+    j = 0
+    print "\tHoming in on ", end, " bound:"
+    while True:
+
+        net.restore('5')
+        net[synapse_names[3]].w[0, 0] = (w_low + w_high) / 2
+        net.store('5')
         snn.Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, \
                 state_monitor_names, spike_monitor_names, \
                 parameters, 5)
-        #pudb.set_trace()
-
-        indices, spikes = net[spike_monitor_names[3]].it
-        spikes_out = collect_spikes(indices, spikes, 1)
-        #spikes_hidden = S_hidden.spiketimes[0]
-        n_outspikes = len(spikes_out)
-        #print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
-
-        if n_outspikes == 1:
-            if extreme_spikes[0] == -1:
-                #pudb.set_trace()
-                extreme_spikes[0] = spikes_out[0]# - spikes_hidden[0]
-            extreme_spikes[1] = spikes_out[0]
-        elif n_outspikes > 1:
-            #pudb.set_trace()
-            break
-
-        net.restore('5')
-        net[synapse_names[3]].w[0, 0] = net[synapse_names[3]].w[0, 0] + 0.5
-        net.store('5')
-        print "\tj = ", j,
-        print "\t\t", net[synapse_names[3]].w[0, 0]
-        print "\t\t\t", spikes_out
         j += 1
+        n_outspikes, spikes_out = GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5)
+        net.restore('5')
+
+        print "\t\tw_low, w_high, n_outspikes = ", w_low, ", ", w_high, ", ", n_outspikes
+        print "\t\t\tspikes_out",  spikes_out
+        if end == 'low':
+            if n_outspikes < num_spikes:
+                w_low = (w_low + w_high) / 2
+            elif n_outspikes >= num_spikes:
+                if n_outspikes == num_spikes and abs(w_high - w_low) < 0.01:
+                    break
+                w_high = (w_low + w_high) / 2
+        else:
+            if n_outspikes <= num_spikes:
+                if n_outspikes == num_spikes and abs(w_high - w_low) < 0.01:
+                    break
+                w_low = (w_low + w_high) / 2
+            elif n_outspikes > num_spikes:
+                w_high = (w_low + w_high) / 2
+
+    return spikes_out
+
+def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     net.restore('4')
-    #net[synapse_names[3]].w[:] = old_weights[:]
+    net, w_low, w_high = GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, \
+                        state_monitor_names, spike_monitor_names, \
+                        parameters, number=5)
+
+    spike_low = BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_names, synapse_names, \
+        state_monitor_names, spike_monitor_names, parameters, end='low')
+
+    spike_high = BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_names, synapse_names, \
+        state_monitor_names, spike_monitor_names, parameters, end='high')
+
+    #pudb.set_trace()
+    if num_spikes == 1:
+        extreme_spikes = [-1, -1]
+        extreme_spikes[0] = spike_low[0]
+        extreme_spikes[1] = spike_high[0]
 
     return extreme_spikes
 
-def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
+def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     if op.isfile("weights/times.txt"):
+        print "Reading desired times"
         desired_times = ReadTimes("weights/times.txt")
     else:
-
+        print "Calculating desired times:"
         desired_times = [-1, -1]
-        extreme_spikes = TestNodeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
+        extreme_spikes = TestNodeRange(net, T, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-        diff = extreme_spikes[1] + extreme_spikes[0]
+        diff = extreme_spikes[0] - extreme_spikes[1]
         diff_r = diff / 10
 
-        extreme_spikes[0] = extreme_spikes[0] + diff_r
+        extreme_spikes[0] = extreme_spikes[0] - diff_r
         extreme_spikes[1] = extreme_spikes[1] + diff_r
 
         desired_times[0] = extreme_spikes[0]*br.second
@@ -806,5 +869,7 @@ def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
         F.write(str(float(desired_times[1])))
         F.write("\n")
         F.close()
+
+        print "\tPrinted to file: ", desired_times
 
     return desired_times
