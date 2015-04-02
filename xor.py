@@ -5,7 +5,7 @@ import brian2 as br
 import time
 import pudb
 import snn 
-#import train
+import train
 import initial as init
 import cProfile
 
@@ -167,8 +167,9 @@ net = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#net = train.ReSuMe(desired_times[0], net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+#pudb.set_trace()
+net = train.ReSuMe(desired_times[0], number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 # zellner or koehler
 """

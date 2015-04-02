@@ -437,6 +437,7 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
     Modifies the weights leading to each neuron in either the hidden layer or the output layer,
     in order to take it a step closer to having the desired number of spikes
     """
+
     layer_neurons = net[neuron_str]
     layer_synapses = net[synapse_str]
     spike_monitor = net[spike_monitor_str]
@@ -731,6 +732,8 @@ def ReadTimes(file_name):
     desired_times[0] = float(strings[0][:-1])*br.second
     desired_times[1] = float(strings[1][:-1])*br.second
     F.close()
+
+    return desired_times
 
 def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):
 

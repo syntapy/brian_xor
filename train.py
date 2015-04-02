@@ -1,6 +1,7 @@
 import brian as br
 import numpy as np
 import math as ma
+import initial as init
 import pudb
 import snn
 
@@ -49,6 +50,119 @@ def ReadTimes(filename):
 
     return desired_times
 
+
+def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
+
+    img, label = snn.ReadImg(number=number)
+    N_hidden_last = len(net[neuron_names[-2][-1]])
+    N_out = len(net[neuron_names[-1]])
+
+    N_h = 1
+    N_o = 1
+
+    trained = False
+
+    while trained == False:
+        trained = True
+        for i in range(N_hidden_last):
+
+            #pudb.set_trace()
+            #print "\t\ti = ", i
+            label = snn.Run(net, T, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, \
+                        spike_monitor_names, parameters, number)
+
+            #print "Hidden Times: ", 
+            #for j in range(len(S_hidden)):
+            #    print S_hidden[j].spiketimes, " ", 
+
+            #print "\nOutput Times: ", S_out.spiketimes
+            right_spike_numbers_hidden = init.check_number_spikes(net, 0, \
+                        T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, spike_monitor_names)
+
+            if right_spike_numbers_hidden == False:
+                print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
+                init.set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
+                        parameters)
+
+            right_spike_numbers_out = init.check_number_spikes(net, 1, \
+                        T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, spike_monitor_names)
+
+            if right_spike_numbers_out == False:
+                print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
+                init.set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
+                        parameters)
+
+            #pudb.set_trace()
+            indices_l, spikes_l = net[spike_monitor_names[-1]]
+            indices_i, spikes_i = net[spike_monitor_names[-2][-1]]
+            S_l = init.collect_spikes(indices_l, spikes_l, 1)
+            S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
+            #S_l = S_out.spiketimes
+            S_d = desired_time
+
+            P = P_Index(S_l, S_d)
+            print "\t\t\tP = ", P
+            if P < Pc:
+                trained = True
+                break
+
+            print "i = ", i
+            #if i == 2:
+            #    pudb.set_trace()
+            sd = max(0, float(S_d) - S_i[i][0])
+            sl = max(0, S_l[0][0] - S_i[i][0])
+            Wd = WeightChange(sd)
+            Wl = -WeightChange(sl)
+            net[synapse_names[3]].w[i] = net[synapse_names[3]].w[i] + Wd + Wl
+
+def SpikeSlopes(Mv, S_out, d_i=3):
+    
+    """
+        Returns a list of values that indicate the difference in voltage 
+        between each spike's starting threshold voltage and the voltage 
+        d_i time steps before it
+
+        NOTE: This assumes that the brian equation solver uses a constant time step
+        throught computation.
+    """
+
+    N = len(S_out.spikes)
+    dt = Mv.times[1] - Mv.times[0]
+    v_diffs = []
+    i_diffs = []
+
+    for i in range(N):
+        time = S_out.spikes[i]
+        index_a = time / dt
+        index_b = index_a - d_i 
+
+        v_diffs.append(Mv.values[index_a] - Mv.values[index_b])
+        i_diffs.append(index_a - index_b)
+
+    return v_diffs, dt
+
+def PickWeightIndexA(Sa, S_hidden, S_out):
+    pass
+
+def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):
+
+    """
+        Depending on the delays of the synapses, and the spike times
+        in the hidden layer and output layer, modification of only certain of the weights
+        in the hidden to output synapses will have an effect on each output spike
+
+    """
+
+    v_diffs, i_diffs = SpikeSlopes(Mv, S_out, d_i)
+
+
+"""
 def TestNodeRange(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
         parameters, number, net)
 
@@ -94,103 +208,4 @@ def TestNodeRange(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor
         Sb.w[i] = old_weights[i]
 
     return return_val
-
-def ReSuMe(desired_times, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
-
-    img, label = snn.ReadImg(number=number, bench=bench)
-    N_hidden_last = len(hidden_neurons[-1])
-    N_out = len(output_neurons)
-
-    N_h = 1
-    N_o = 1
-
-    trained = False
-
-    while trained == False:
-        for i in range(N_hidden_last):
-
-            #pudb.set_trace()
-            #print "\t\ti = ", i
-            label = snn.Run(net, T, v0, u0, I0, ge0, \
-                        neuron_names, synapse_names, state_monitor_names, \
-                        spike_monitor_names, parameters, number)
-
-            #print "Hidden Times: ", 
-            #for j in range(len(S_hidden)):
-            #    print S_hidden[j].spiketimes, " ", 
-
-            #print "\nOutput Times: ", S_out.spiketimes
-            right_spike_numbers = init.check_number_spikes(net, layer, \
-                        T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, spike_monitor_names)
-
-            if right_spike_numbers == False:
-                print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
-                #pudb.set_trace()
-                init.set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
-                        parameters)
-
-            #pudb.set_trace()
-            indices_l, spikes_l = net[spike_monitor_names[-1]]
-            indices_i, spikes_i = net[spike_monitor_names[-2][-1]]
-            S_l = init.collect_spikes(indices_l, spikes_l, 1)
-            S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
-            #S_l = S_out.spiketimes
-            S_d = desired_time
-
-            P = P_Index(S_l, S_d)
-            print "\t\t\tP = ", P
-            if P < Pc:
-                trained = True
-                break
-
-            print "i = ", i
-            #if i == 2:
-            #    pudb.set_trace()
-            sd = max(0, float(S_d) - S_i[i][0])
-            sl = max(0, S_l[0][0] - S_i[i][0])
-            Wd = WeightChange(sd)
-            Wl = -WeightChange(sl)
-            Sb.w[i] = Sb.w[i] + Wd + Wl
-
-def SpikeSlopes(Mv, S_out, d_i=3):
-    
-    """
-        Returns a list of values that indicate the difference in voltage 
-        between each spike's starting threshold voltage and the voltage 
-        d_i time steps before it
-
-        NOTE: This assumes that the brian equation solver uses a constant time step
-        throught computation.
-    """
-
-    N = len(S_out.spikes)
-    dt = Mv.times[1] - Mv.times[0]
-    v_diffs = []
-    i_diffs = []
-
-    for i in range(N):
-        time = S_out.spikes[i]
-        index_a = time / dt
-        index_b = index_a - d_i 
-
-        v_diffs.append(Mv.values[index_a] - Mv.values[index_b])
-        i_diffs.append(index_a - index_b)
-
-    return v_diffs, dt
-
-def PickWeightIndexA(Sa, S_hidden, S_out):
-    pass
-
-def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):
-
-    """
-        Depending on the delays of the synapses, and the spike times
-        in the hidden layer and output layer, modification of only certain of the weights
-        in the hidden to output synapses will have an effect on each output spike
-
-    """
-
-    v_diffs, i_diffs = SpikeSlopes(Mv, S_out, d_i)
+"""

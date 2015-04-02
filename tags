@@ -33,7 +33,7 @@ PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
 Plot	snn.py	/^def Plot(monitor, number):$/;"	f
 ReSuMe	train.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='LI', levels=None):$/;"	f
+ReadImg	snn.py	/^def ReadImg(number=1, letter=None, bench='xor', levels=None):$/;"	f
 ReadTimes	initial.py	/^def ReadTimes(file_name):$/;"	f
 ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
 Run	snn.py	/^def Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number):$/;"	f
@@ -47,7 +47,6 @@ SpikeSlopes	train.py	/^def SpikeSlopes(Mv, S_out, d_i=3):$/;"	f
 StateMonitors	initial.py	/^def StateMonitors(neuron_groups, index_str, index_record=0):$/;"	f
 T	xor.py	/^T = 30$/;"	v
 TestNodeRange	initial.py	/^def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
-TestNodeRange	train.py	/^        parameters, number, net)$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
 _basic_training	initial.py	/^def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_abs, D_spikes):$/;"	f
 _compatible_dimensions	initial.py	/^def _compatible_dimensions(net, synapse_name_single):$/;"	f

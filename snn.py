@@ -10,7 +10,7 @@ def make2dList(rows, cols):
 
     return a
 
-def ReadImg(number=1, letter=None, bench='LI', levels=None):
+def ReadImg(number=1, letter=None, bench='xor', levels=None):
 
     if bench == 'xor':
         if levels == None:
