@@ -69,7 +69,7 @@ N_out = 1
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
 #synapes_array = []
-Pc = 0.05
+Pc = 0.0005
 
 '''     0 - Calculates number of filters    '''
 #if bench == 'mnist':
@@ -189,8 +189,12 @@ desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 #pudb.set_trace()
-net = train.ReSuMe(desired_times[0], number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+
+net = train.ReSuMe(desired_times[0], 0, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+net = train.ReSuMe(desired_times[0], 1, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+
 
 #for number in range(4):
 #    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \

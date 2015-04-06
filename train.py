@@ -17,7 +17,7 @@ def DesiredOut(label, bench):
     return return_val
 
 def WeightChange(s):
-    A = 10**-1
+    A = 10**0
     tau = 2.0*br.ms
     return A*ma.exp(-s / tau)
 
@@ -50,8 +50,7 @@ def ReadTimes(filename):
 
     return desired_times
 
-
-def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+def ReSuMe(desired, number, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     img, label = snn.ReadImg(number=number)
@@ -78,6 +77,11 @@ def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge
             #    print S_hidden[j].spiketimes, " ", 
 
             #print "\nOutput Times: ", S_out.spiketimes
+
+            #pudb.set_trace()
+            indices_l, spikes_l = net[spike_monitor_names[-1]].it
+            indices_i, spikes_i = net[spike_monitor_names[-2][-1]].it
+
             right_spike_numbers_hidden = init.check_number_spikes(net, 0, \
                         T, N_h, N_o, v0, u0, I0, ge0, \
                         neuron_names, spike_monitor_names)
@@ -87,6 +91,7 @@ def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge
                 init.set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
                         parameters)
+                continue
 
             right_spike_numbers_out = init.check_number_spikes(net, 1, \
                         T, N_h, N_o, v0, u0, I0, ge0, \
@@ -97,31 +102,29 @@ def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge
                 init.set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
                         parameters)
+                continue
 
-            #pudb.set_trace()
-            indices_l, spikes_l = net[spike_monitor_names[-1]]
-            indices_i, spikes_i = net[spike_monitor_names[-2][-1]]
             S_l = init.collect_spikes(indices_l, spikes_l, 1)
             S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
             #S_l = S_out.spiketimes
-            S_d = desired_time
+            S_d = desired
 
             P = P_Index(S_l, S_d)
             print "\t\t\tP = ", P
-            if P < Pc:
-                trained = True
-                break
+            if P >= Pc:
+                trained = False
+                print "i = ", i
+                #if i == 2:
+                #    pudb.set_trace()
+                #pudb.set_trace()
+                sd = max(0, float(S_d) - float(S_i[i][0]))
+                sl = max(0, float(S_l[0][0]) - float(S_i[i][0]))
+                Wd = WeightChange(sd)
+                Wl = -WeightChange(sl)
+                net.restore()
+                net[synapse_names[3]].w[i, 0] = net[synapse_names[3]].w[i] + Wd + Wl
+                net.store()
 
-            print "i = ", i
-            #if i == 2:
-            #    pudb.set_trace()
-            sd = max(0, float(S_d) - S_i[i][0])
-            sl = max(0, S_l[0][0] - S_i[i][0])
-            Wd = WeightChange(sd)
-            Wl = -WeightChange(sl)
-            net.restore()
-            net[synapse_names[3]].w[i] = net[synapse_names[3]].w[i] + Wd + Wl
-            net.store()
 
 def SpikeSlopes(Mv, S_out, d_i=3):
     
