@@ -183,22 +183,25 @@ state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
-net = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+#pudb.set_trace()
+net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#pudb.set_trace()
 
-net = train.ReSuMe(desired_times[0], 0, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-net = train.ReSuMe(desired_times[0], 1, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
+outputs = [-1, -1, -1, -1]
 
-#for number in range(4):
-#    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
-#            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
+for number in range(4):
+    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
+            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
+
+    indices_l, spikes_l = net[spike_monitor_names[-1]].it
+    outputs[number] = spikes_l[0]
+    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
 #    snn.Plot(state_monitor_out, number)
 #
 #    snn.Plot(state_monitor_a, number)

@@ -699,12 +699,20 @@ def _readweights(net, synapse_names, a, b):
 
     return net
 
+def _trained():
+    if op.isfile("weights/trained.txt") == True:
+        return True
+    return False
+
 def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
          neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
+    trained = False
     #pudb.set_trace()
     if _correct_weights_exist(net, synapse_names, 0, len(synapse_names)):
         net = _readweights(net, synapse_names, 0, len(synapse_names))
+        if _trained():
+            trained = True
         net.store()
     elif _correct_weights_exist(net, synapse_names, 0, len(synapse_names)-1):
         net = _readweights(net, synapse_names, 0, len(synapse_names)-1)
@@ -728,7 +736,7 @@ def SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 
 
     #pudb.set_trace()
-    return net
+    return net, trained
 
 #SetNeuronGroups
 #SetSynapses

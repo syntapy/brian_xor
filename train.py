@@ -50,24 +50,23 @@ def ReadTimes(filename):
 
     return desired_times
 
-def ReSuMe(desired, number, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+def ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
-    img, label = snn.ReadImg(number=number)
+    #pudb.set_trace()
+    trained = False
     N_hidden_last = len(net[neuron_names[-2][-1]])
     N_out = len(net[neuron_names[-1]])
 
     N_h = 1
     N_o = 1
 
-    trained = False
+    for number in range(4):
 
-    while trained == False:
-        trained = True
-        for i in range(N_hidden_last):
+        desired_index = number / 2
+        while trained == False:
+            trained = True
 
-            #pudb.set_trace()
-            #print "\t\ti = ", i
             net = snn.Run(net, T, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters, number)
@@ -82,48 +81,35 @@ def ReSuMe(desired, number, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0
             indices_l, spikes_l = net[spike_monitor_names[-1]].it
             indices_i, spikes_i = net[spike_monitor_names[-2][-1]].it
 
-            right_spike_numbers_hidden = init.check_number_spikes(net, 0, \
-                        T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, spike_monitor_names)
+            for i in range(N_hidden_last):
 
-            if right_spike_numbers_hidden == False:
-                print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
-                init.set_number_spikes(net, 0, T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
-                        parameters)
-                continue
-
-            right_spike_numbers_out = init.check_number_spikes(net, 1, \
-                        T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, spike_monitor_names)
-
-            if right_spike_numbers_out == False:
-                print "ERROR!! WRONG NUMBER OF SPIKES!! Resetting No. Spikes!!!"
-                init.set_number_spikes(net, 1, T, N_h, N_o, v0, u0, I0, ge0, \
-                        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
-                        parameters)
-                continue
-
-            S_l = init.collect_spikes(indices_l, spikes_l, 1)
-            S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
-            #S_l = S_out.spiketimes
-            S_d = desired
-
-            P = P_Index(S_l, S_d)
-            print "\t\t\tP = ", P
-            if P >= Pc:
-                trained = False
-                print "i = ", i
-                #if i == 2:
-                #    pudb.set_trace()
                 #pudb.set_trace()
-                sd = max(0, float(S_d) - float(S_i[i][0]))
-                sl = max(0, float(S_l[0][0]) - float(S_i[i][0]))
-                Wd = WeightChange(sd)
-                Wl = -WeightChange(sl)
-                net.restore()
-                net[synapse_names[3]].w[i, 0] = net[synapse_names[3]].w[i] + Wd + Wl
-                net.store()
+                #print "\t\ti = ", i
+                S_l = init.collect_spikes(indices_l, spikes_l, 1)
+                S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
+                #S_l = S_out.spiketimes
+                S_d = desired_times[desired_index]
+
+                P = P_Index(S_l, S_d)
+                print "\t\t\tP = ", P
+                if P >= Pc:
+                    trained = False
+                    print "i = ", i
+                    #if i == 2:
+                    #    pudb.set_trace()
+                    #pudb.set_trace()
+                    sd = max(0, float(S_d) - float(S_i[i][0]))
+                    sl = max(0, float(S_l[0][0]) - float(S_i[i][0]))
+                    Wd = WeightChange(sd)
+                    Wl = -WeightChange(sl)
+                    net.restore()
+                    net[synapse_names[3]].w[i, 0] = net[synapse_names[3]].w[i] + Wd + Wl
+                    net.store()
+    
+    _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
+    F = open("weights/trained.txt", 'w')
+    F.write("True")
+    F.close()
 
 
 def SpikeSlopes(Mv, S_out, d_i=3):
