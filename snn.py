@@ -3,6 +3,8 @@ import numpy as np
 import brian2 as br
 import cProfile
 import pudb
+import snn
+import sys
 
 def make2dList(rows, cols):
     a=[]
@@ -23,7 +25,7 @@ def ReadImg(number=1, letter=None, bench='xor', levels=None):
             00:0 11:0 10:1 01:1
         '''
 
-        if number == 0:
+        if number == 0 or number == 5:
             img[0][0] = 0
             img[0][1] = 0
             label = 0
@@ -88,7 +90,7 @@ def ReadImg(number=1, letter=None, bench='xor', levels=None):
 
     return img, label
 
-def GetInSpikes(img, bench='LI'):
+def GetInSpikes(img, bench='xor'):
 
     if img != None:
         img_dims = np.shape(img)
@@ -145,7 +147,14 @@ def Run(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_name
     vt = parameters[5]
     vr = parameters[6]
 
-    net.restore(str(number))
+    if number == 5:
+        net.restore('5')
+    else:
+        net.restore()
+
+    img, label = snn.ReadImg(number=number)
+    in_spikes = snn.GetInSpikes(img)
+    net[neuron_names[0]].period = in_spikes*br.ms
 
     net.run(T*br.msecond,report=None)
 

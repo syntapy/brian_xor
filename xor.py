@@ -4,6 +4,7 @@ import numpy as np
 import brian2 as br
 import time
 import pudb
+import sys
 import snn 
 import train
 import initial as init
@@ -25,6 +26,25 @@ import cProfile
         Make SetNumSpikes(args...) better at fine tuning the weights, esp. when there are very large numbers of hidden layer neurons
 """
 
+def trace_calls(frame, event, arg):
+    if event != 'call':
+        return
+    co = frame.f_code
+    func_name = co.co_name
+    if func_name == 'write':
+        # Ignore write() calls from print statements
+        return
+    func_line_no = frame.f_lineno
+    func_filename = co.co_filename
+    caller = frame.f_back
+    caller_line_no = caller.f_lineno
+    caller_filename = caller.f_code.co_filename
+    print 'Call to %s on line %s of %s from line %s of %s' % \
+        (func_name, func_line_no, func_filename,
+         caller_line_no, caller_filename)
+    return
+
+#sys.settrace(trace_calls)
 weight_file = "weights.txt"
 
 objects = []
@@ -150,6 +170,7 @@ neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
             parameters, eqs_hidden_neurons, reset, neuron_names)
 synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
 
+state_monitor_out = init.StateMonitors(neuron_groups, 'out', index_record=0) 
 state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)
 state_monitor_b = init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)
 state_monitor_c = init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)
@@ -171,19 +192,18 @@ desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
 net = train.ReSuMe(desired_times[0], number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-# zellner or koehler
-"""
-for number in range(4):
-    snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
-            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
-    snn.Plot(state_monitor_a, number)
-    snn.Plot(state_monitor_b, number)
-    snn.Plot(state_monitor_c, number)
-    snn.Plot(state_monitor_d, number)
-    snn.Plot(state_monitor_e, number)
+#for number in range(4):
+#    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
+#            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
+#    snn.Plot(state_monitor_out, number)
+#
+#    snn.Plot(state_monitor_a, number)
+#    snn.Plot(state_monitor_b, number)
+#    snn.Plot(state_monitor_c, number)
+#    snn.Plot(state_monitor_d, number)
+#    snn.Plot(state_monitor_e, number)
     #pudb.set_trace()
     #tested = snn.CheckNumSpikes(T, 1, 1, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net)
-"""
 #
 #snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, number, net)
 

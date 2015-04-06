@@ -1,6 +1,7 @@
 import os.path as op
 import brian2 as br
 import numpy as np
+import sys
 import pudb
 import snn
 
@@ -136,6 +137,7 @@ def SetSynapseInitialWeights(net, synapse_names):
     net[synapse_names[-1]].w[:, :]='1.9*(0.5+0.5*rand())'
     net[synapse_names[-1]].delay='(0)*ms'
 
+    net.store()
     return net
 
 def SetSynapses(neuron_groups, synapse_names):
@@ -279,24 +281,29 @@ def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, pa
     else:
         net = _network(net, state_monitors)
 
+    net.store()
     return net
 
 def SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):
+    """
+    Sets initial values of the variables, but input states are not set.
+    """
 
+    #for number in range(4):
+    net = _neuroninitconditions(net, neuron_names[1:], v0, u0, I0, ge0)
+    letter = None
+    label = 0
+    """
+    img, label = snn.ReadImg(number=number, bench=bench, letter=letter)
+    spikes = snn.GetInSpikes(img, bench=bench)
+    net[neuron_names[0]].period = spikes * br.ms
+    """
+    net[neuron_names[0]].fire_once = [True, True, True]
+    net[neuron_names[0]].v = vr
+    #net.store(str(number))
+
+    #net.restore('0')
     net.store()
-    for number in range(4):
-        net = _neuroninitconditions(net, neuron_names[1:], v0, u0, I0, ge0)
-        letter = None
-        label = 0
-        img, label = snn.ReadImg(number=number, bench=bench, letter=letter)
-        spikes = snn.GetInSpikes(img, bench=bench)
-        net[neuron_names[0]].period = spikes * br.ms
-        net[neuron_names[0]].fire_once = [True, True, True]
-        net[neuron_names[0]].v = vr
-        net.store(str(number))
-
-    net.restore('0')
-    net.store('4')
 
     return net
 
@@ -321,19 +328,18 @@ def collect_spikes(indices, spikes, N_neurons):
     spikes_list = []
 
     j = 0
+    #if len(indices) == 1:
+    #    pudb.set_trace()
     arg_sort = br.argsort(indices)
     sorted_indices = br.sort(indices)
-    if len(indices) > 0:
-        if N_neurons > 1:
-            for i in range(N_neurons):
-                spikes_list.append([])
 
-            for i in range(len(sorted_indices)):
-                index = arg_sort[i]
-                spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
-        else:
-            for i in range(len(sorted_indices)):
-                spikes_list.append(spikes[arg_sort[i]])
+    #if len(indices) > 0:
+    for i in range(N_neurons):
+        spikes_list.append([])
+
+    for i in range(len(sorted_indices)):
+        index = arg_sort[i]
+        spikes_list[sorted_indices[i]].append(spikes[arg_sort[i]])
 
     return spikes_list
 
@@ -421,6 +427,8 @@ def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, 
 
     for i in range(index, N_neurons, 4):
         for j in range(N_neurons):
+            #pudb.set_trace()
+            print "\t\t\t\tj, spikes[j] = ", j, ", ", spikes[j]
             if len(spikes[j]) > D_spikes:
                 #pudb.set_trace()
                 modified = True
@@ -438,18 +446,19 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
     in order to take it a step closer to having the desired number of spikes
     """
 
+    #pudb.set_trace()
     layer_neurons = net[neuron_str]
     layer_synapses = net[synapse_str]
     spike_monitor = net[spike_monitor_str]
     N_neurons = len(layer_neurons)
 
     indices, spikes = spike_monitor.it
-    #pudb.set_trace()
     print spikes, "\t", indices
+    #pudb.set_trace()
     spikes = collect_spikes(indices, spikes, N_neurons)
-    net.restore(str(number))
+    net.restore()
     modified, net = _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, D_spikes)
-    net.store(str(number))
+    net.store()
 
     return modified, net
 
@@ -739,19 +748,21 @@ def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monito
 
     indices, spikes = net[spike_monitor_names[3]].it
     spikes_out = collect_spikes(indices, spikes, 1)
-    n_outspikes = len(spikes_out)
+    n_outspikes = len(spikes_out[0])
 
     return n_outspikes, spikes_out
 
 def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):
 
+    #pudb.set_trace()
+    net.restore()
     n_hidden_last = len(net[neuron_names[2][-1]])
     old_weights = np.empty(n_hidden_last)
 
     extreme_spikes = [-1, -1]
 
     w_last = 1
-    net[synapse_names[3]].w[:] = np.zeros(n_hidden_last, dtype=float)
+    net[synapse_names[3]].w[:, 0] = np.zeros(n_hidden_last, dtype=float)
     net[synapse_names[3]].w[0, 0] = w_last
     net.store('5')
 
@@ -761,24 +772,26 @@ def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_na
 
         net = snn.Run(net, 2*T, v0, u0, I0, ge0, neuron_names, synapse_names, \
                 state_monitor_names, spike_monitor_names, \
-                parameters, number)
+                parameters, number=number)
 
+        #pudb.set_trace()
         n_outspikes, spikes_out = GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, \
                     state_monitor_names, spike_monitor_names, \
-                    parameters, number=5)
+                    parameters, number=number)
 
+        #pudb.set_trace()
         print "\t\tj, w, n_outspikes = ", j, ", ", net[synapse_names[3]].w[0, 0][0], ", ", n_outspikes
-        print "\t\t\tspikes_out",  spikes_out
+        print "\t\t\tspikes_out",  spikes_out[0]
         if n_outspikes < num_spikes:
             w_last = net[synapse_names[3]].w[0, 0]
-
             net.restore('5')
-            w_new = 2*net[synapse_names[3]].w[0, 0] 
+            w_new = 2*w_last
             net[synapse_names[3]].w[0, 0] = w_new
             net.store('5')
         elif n_outspikes == num_spikes:
+            #w_last = 
             net.restore('5')
-            w_new = 1.2*net[synapse_names[3]].w[0, 0] 
+            w_new = 1.2*net[synapse_names[3]].w[0, 0]
             net[synapse_names[3]].w[0, 0] = w_new
             net.store('5')
         elif n_outspikes > num_spikes:
@@ -786,9 +799,10 @@ def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_na
 
         j += 1
 
-    w_low, w_high = w_last, net[synapse_names[3]].w[0, 0]
+    #w_low, w_high = w_last, net[synapse_names[3]].w[0, 0]
+    net.restore()
 
-    return net, w_low, w_high
+    return net, w_last, w_new
 
 def BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_names, synapse_names, \
         state_monitor_names, spike_monitor_names, parameters, end='low'):
@@ -808,7 +822,7 @@ def BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_
         net.restore('5')
 
         print "\t\tw_low, w_high, n_outspikes = ", w_low, ", ", w_high, ", ", n_outspikes
-        print "\t\t\tspikes_out",  spikes_out
+        print "\t\t\tspikes_out",  spikes_out[0]
         if end == 'low':
             if n_outspikes < num_spikes:
                 w_low = (w_low + w_high) / 2
@@ -824,14 +838,14 @@ def BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_
             elif n_outspikes > num_spikes:
                 w_high = (w_low + w_high) / 2
 
-    return spikes_out
+    return spikes_out[0]
 
 def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
-    net.restore('4')
+    #net.restore('4')
     net, w_low, w_high = GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, \
                         state_monitor_names, spike_monitor_names, \
-                        parameters, number=5)
+                        parameters)
 
     spike_low = BinSearchWeights(net, T, num_spikes, w_low, w_high, v0, u0, I0, ge0, neuron_names, synapse_names, \
         state_monitor_names, spike_monitor_names, parameters, end='low')
@@ -845,6 +859,7 @@ def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_nam
         extreme_spikes[0] = spike_low[0]
         extreme_spikes[1] = spike_high[0]
 
+    net.restore()
     return extreme_spikes
 
 def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):

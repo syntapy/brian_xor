@@ -69,7 +69,7 @@ def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge
 
             #pudb.set_trace()
             #print "\t\ti = ", i
-            label = snn.Run(net, T, v0, u0, I0, ge0, \
+            net = snn.Run(net, T, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters, number)
 
@@ -119,7 +119,9 @@ def ReSuMe(desired, number, net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge
             sl = max(0, S_l[0][0] - S_i[i][0])
             Wd = WeightChange(sd)
             Wl = -WeightChange(sl)
+            net.restore()
             net[synapse_names[3]].w[i] = net[synapse_names[3]].w[i] + Wd + Wl
+            net.store()
 
 def SpikeSlopes(Mv, S_out, d_i=3):
     
