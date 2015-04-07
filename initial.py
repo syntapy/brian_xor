@@ -886,7 +886,7 @@ def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_nam
         extreme_spikes = TestNodeRange(net, T, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
         diff = extreme_spikes[0] - extreme_spikes[1]
-        diff_r = diff / 10
+        diff_r = diff / 5
 
         extreme_spikes[0] = extreme_spikes[0] - diff_r
         extreme_spikes[1] = extreme_spikes[1] + diff_r

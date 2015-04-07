@@ -62,14 +62,14 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_liquid = [3, 3, 8] # Total, liquid in, liquid out
+N_liquid = [4, 5, 12] # Total, liquid in, liquid out
 #CP_liquid = 0.7
-N_hidden = [5]
+N_hidden = [14]
 N_out = 1
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
 #synapes_array = []
-Pc = 0.0005
+Pc = 0.013
 
 '''     0 - Calculates number of filters    '''
 #if bench == 'mnist':
@@ -189,19 +189,20 @@ net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0,
 desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+if trained == False:
+    net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#outputs = [-1, -1, -1, -1]
+outputs = [-1, -1, -1, -1]
 
 for number in range(4):
     net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
             synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
 
-    #indices_l, spikes_l = net[spike_monitor_names[-1]].it
-    #outputs[number] = spikes_l[0]
-    #print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
-    snn.Plot(state_monitor_out, number)
+    indices_l, spikes_l = net[spike_monitor_names[-1]].it
+    outputs[number] = spikes_l[0]
+    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
+    #snn.Plot(state_monitor_out, number)
 
     #snn.Plot(state_monitor_a, number)
     #snn.Plot(state_monitor_b, number)

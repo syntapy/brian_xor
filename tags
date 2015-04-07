@@ -20,15 +20,15 @@ L	train.py	/^def L(t):$/;"	f
 N	xor.py	/^    N = 1$/;"	v
 N	xor.py	/^N = 1$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
-N_hidden	xor.py	/^N_hidden = [5]$/;"	v
+N_hidden	xor.py	/^N_hidden = [14]$/;"	v
 N_in	xor.py	/^N_in = 2$/;"	v
-N_liquid	xor.py	/^N_liquid = [3, 3, 8] # Total, liquid in, liquid out$/;"	v
+N_liquid	xor.py	/^N_liquid = [4, 5, 12] # Total, liquid in, liquid out$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
 OutputTimeRange	initial.py	/^def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
-Pc	xor.py	/^Pc = 0.0005$/;"	v
+Pc	xor.py	/^Pc = 0.013$/;"	v
 PickWeightIndexA	train.py	/^def PickWeightIndexA(Sa, S_hidden, S_out):$/;"	f
 PickWeightIndicesB	train.py	/^def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):$/;"	f
 Plot	snn.py	/^def Plot(monitor, number):$/;"	f
@@ -89,6 +89,7 @@ img_dims	xor.py	/^    img_dims = (1, 2)$/;"	v
 levels	xor.py	/^    levels = 1$/;"	v
 levels	xor.py	/^levels=4$/;"	v
 make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
+net	xor.py	/^                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$/;"	v
 net	xor.py	/^            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)$/;"	v
 net	xor.py	/^net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$/;"	v
 net	xor.py	/^net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)$/;"	v
@@ -97,6 +98,7 @@ neuron_groups	xor.py	/^            parameters, eqs_hidden_neurons, reset, neuron
 neuron_names	xor.py	/^neuron_names = ['input', ['liquid_in', 'liquid_hidden', 'liquid_out', 'liquid_all'], [], 'out']$/;"	v
 number	xor.py	/^number = 1 #number of hidden_neurons$/;"	v
 objects	xor.py	/^objects = []$/;"	v
+outputs	xor.py	/^outputs = [-1, -1, -1, -1]$/;"	v
 parameters	xor.py	/^parameters = [a, b, c, d, tau, vt, vr]$/;"	v
 set_number_spikes	initial.py	/^def set_number_spikes(net, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 simtime	xor.py	/^simtime = 1 #duration of the simulation in s$/;"	v
