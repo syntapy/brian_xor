@@ -189,26 +189,25 @@ net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0,
 desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
+#net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-
-outputs = [-1, -1, -1, -1]
+#outputs = [-1, -1, -1, -1]
 
 for number in range(4):
     net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
             synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
 
-    indices_l, spikes_l = net[spike_monitor_names[-1]].it
-    outputs[number] = spikes_l[0]
-    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
-#    snn.Plot(state_monitor_out, number)
-#
-#    snn.Plot(state_monitor_a, number)
-#    snn.Plot(state_monitor_b, number)
-#    snn.Plot(state_monitor_c, number)
-#    snn.Plot(state_monitor_d, number)
-#    snn.Plot(state_monitor_e, number)
+    #indices_l, spikes_l = net[spike_monitor_names[-1]].it
+    #outputs[number] = spikes_l[0]
+    #print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
+    snn.Plot(state_monitor_out, number)
+
+    #snn.Plot(state_monitor_a, number)
+    #snn.Plot(state_monitor_b, number)
+    #snn.Plot(state_monitor_c, number)
+    #snn.Plot(state_monitor_d, number)
+    #snn.Plot(state_monitor_e, number)
     #pudb.set_trace()
     #tested = snn.CheckNumSpikes(T, 1, 1, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net)
 #

@@ -83,7 +83,7 @@ def ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, 
 
             for i in range(N_hidden_last):
 
-                #pudb.set_trace()
+                pudb.set_trace()
                 #print "\t\ti = ", i
                 S_l = init.collect_spikes(indices_l, spikes_l, 1)
                 S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
